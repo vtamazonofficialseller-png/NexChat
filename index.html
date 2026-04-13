@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexChat Pro | Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --bg: #050505; --grey: #121212; --white: #fff; }
+        body { margin: 0; background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        
+        /* UI Elements */
+        .welcome-bar { background: #111; padding: 12px; text-align: center; border-bottom: 1px solid #222; font-size: 13px; }
+        .trigger { color: var(--gold); cursor: pointer; user-select: none; font-weight: 600; }
+        
+        header { padding: 15px 20px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212,175,55,0.2); }
+        .logo { font-family: 'Montserrat', sans-serif; font-size: 22px; }
+        .logo .chat { color: var(--gold); }
+
+        .status-bar { display: flex; padding: 15px; gap: 15px; overflow-x: auto; background: var(--grey); border-bottom: 1px solid #222; }
+        .s-circle { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--gold); background: #333; flex-shrink: 0; }
+
+        /* Hidden Admin Panel */
+        #masterPanel { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; transition: 0.5s; padding: 25px; box-sizing: border-box; overflow-y: auto; }
+        #masterPanel.active { top: 0; }
+        .admin-card { background: var(--grey); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        .btn { background: var(--gold); color: #000; padding: 15px; border: none; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* Markers */
+        .chat-item { display: flex; align-items: center; padding: 15px; background: var(--grey); margin: 10px; border-radius: 12px; position: relative; }
+        .p-img { width: 50px; height: 50px; border-radius: 50%; background: #444; margin-right: 15px; position: relative; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; position: absolute; bottom: 0; right: 0; border: 2px solid var(--bg); }
+        .blue { background: #0084ff; } .pink { background: #ff4d94; } .gold-dot { background: var(--gold); box-shadow: 0 0 5px var(--gold); }
+
+        nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; }
+    </style>
+</head>
+<body>
+
+<div class="welcome-bar">
+    <span class="trigger" id="masterTrigger">Welcome to NexChat! Tap 7x for Admin</span>
+</div>
+
+<header>
+    <div class="logo">Nex<span class="chat">Chat</span></div>
+    <div style="font-size: 12px; color: var(--gold);">+91 88087 22351</div>
+</header>
+
+<div class="status-bar">
+    <div class="s-circle" style="border-style: dashed; display: flex; align-items: center; justify-content: center; color: var(--gold);">+</div>
+    <div class="s-circle"></div>
+    <div class="s-circle"></div>
+</div>
+
+<div class="chat-list">
+    <div class="chat-item">
+        <div class="p-img"><div class="dot gold-dot"></div></div>
+        <div>
+            <h4 style="margin:0; color:var(--gold);">Technical Support</h4>
+            <p style="margin:5px 0 0; font-size:12px; color:#888;">Online for Assist</p>
+        </div>
+    </div>
+</div>
+
+<div id="masterPanel">
+    <div style="display:flex; justify-content: space-between; align-items:center;">
+        <h2 style="color:var(--gold)">Master Admin</h2>
+        <button onclick="closePanel()" style="background:none; border:none; color:#fff; font-size:30px;">×</button>
+    </div>
+
+    <div class="admin-card">
+        <h3>1. Global Settings</h3>
+        <input type="text" id="waLink" value="+918808722351" placeholder="WhatsApp Number">
+        <input type="text" id="insta" placeholder="Instagram Link">
+        <button class="btn" onclick="alert('Links Updated!')">Sync Social Media</button>
+    </div>
+
+    <div class="admin-card">
+        <h3>2. Staff Permissions</h3>
+        <input type="email" id="staffMail" placeholder="Enter Staff Email">
+        <select id="role">
+            <option>Level 1: Chat Only</option>
+            <option>Level 2: Catalog Manager</option>
+            <option>Level 3: Full Manager</option>
+        </select>
+        <button class="btn" onclick="alert('Staff Role Set!')">Authorize Member</button>
+    </div>
+</div>
+
+<nav>
+    <span style="color:var(--gold)">Chats</span>
+    <span style="color:#555">Catalog</span>
+    <span style="color:#555">Staff</span>
+</nav>
+
+<script>
+    let taps = 0;
+    const trig = document.getElementById('masterTrigger');
+    const panel = document.getElementById('masterPanel');
+
+    trig.addEventListener('click', () => {
+        taps++;
+        if(taps === 7) {
+            let pass = prompt("Enter Admin Email:");
+            if(pass === "vinayak@nexchat.com") { // CHANGE THIS TO YOUR EMAIL
+                panel.classList.add('active');
+            } else { alert("Access Denied!"); }
+            taps = 0;
+        }
+    });
+
+    function closePanel() { panel.classList.remove('active'); }
+</script>
+
+</body>
+</html>
