@@ -3,75 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexChat Pro Gold - Final Fix</title>
+    <title>NexChat Pro Gold - Final</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
     <style>
-        :root { --green: #075E54; --teal: #128C7E; --light: #dcf8c6; }
-        body { margin: 0; font-family: sans-serif; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: var(--green); color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        :root { --green: #075E54; --teal: #128C7E; --light: #dcf8c6; --white: #ffffff; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Header */
+        header { background: var(--green); color: white; position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 18px; }
         .tabs { display: flex; text-align: center; }
-        .tab { flex: 1; padding: 12px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; opacity: 0.7; }
+        .tab { flex: 1; padding: 14px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; opacity: 0.7; transition: 0.3s; }
         .tab.active { opacity: 1; border-bottom: 3px solid white; }
-        #mainMenu { position: absolute; right: 10px; top: 55px; background: white; color: black; border-radius: 4px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 160px; z-index: 2000; }
-        #mainMenu div { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
-        .content-area { margin-top: 100px; height: calc(100vh - 100px); overflow-y: auto; background: white; }
+
+        /* Menu */
+        #mainMenu { position: absolute; right: 10px; top: 55px; background: white; color: black; border-radius: 4px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 170px; z-index: 2000; }
+        #mainMenu div { padding: 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 15px; }
+
+        /* Content Areas */
+        .content-area { margin-top: 105px; height: calc(100vh - 105px); overflow-y: auto; background: white; }
         .page { display: none; height: 100%; }
         .page.active { display: block; }
+
+        /* Overlays (Settings & Chat) */
         .full-page { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; }
-        .fp-header { background: var(--teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .profile-box { width: 150px; height: 150px; border-radius: 50%; background: #eee; margin: 30px auto; border: 4px solid var(--teal); overflow: hidden; cursor: pointer; }
+        .fp-header { background: var(--teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; font-size: 19px; }
+
+        /* Profile & Photo Fix */
+        .profile-box { width: 155px; height: 155px; border-radius: 50%; background: #eee; margin: 30px auto; border: 4px solid var(--teal); overflow: hidden; position: relative; cursor: pointer; }
         .profile-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* User List UI */
         .user-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
-        .user-img { width: 50px; height: 50px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
-        .verify-dot { width: 12px; height: 12px; border-radius: 50%; margin-left: auto; }
-        .dot-male { background: #0084ff; } .dot-female { background: #ff69b4; }
+        .user-img { width: 52px; height: 52px; border-radius: 50%; background: #ddd; margin-right: 15px; object-fit: cover; }
+        .verify-dot { width: 12px; height: 12px; border-radius: 50%; margin-left: auto; border: 2px solid white; }
+        .dot-male { background: #0084ff; box-shadow: 0 0 5px #0084ff; }
+        .dot-female { background: #ff69b4; box-shadow: 0 0 5px #ff69b4; }
+
+        /* Chat System */
+        #msg-flow { flex: 1; padding: 15px; background: #e5ddd5; overflow-y: auto; display: flex; flex-direction: column; }
+        .bubble { padding: 8px 12px; margin: 4px; border-radius: 8px; max-width: 75%; font-size: 15px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .bubble.me { align-self: flex-end; background: var(--light); border-top-right-radius: 0; }
+        .bubble.you { align-self: flex-start; background: white; border-top-left-radius: 0; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="top-bar">
-        <b style="font-size: 20px;">NexChat Pro Gold</b>
+        <span style="font-size: 21px; font-weight: bold;">NexChat Gold</span>
         <div style="display:flex; align-items:center; gap:15px;">
-            <div id="adminBadge" style="display:none; color:gold; border:1px solid gold; padding:2px 5px; border-radius:4px; font-size:10px;">ADMIN</div>
-            <span onclick="toggleM()" style="cursor:pointer; font-size: 22px;">⋮</span>
+            <div id="adminBadge" style="display:none; color:gold; border:1px solid gold; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold;">ADMIN</div>
+            <span onclick="toggleMenu()" style="cursor:pointer; font-size: 24px;">⋮</span>
         </div>
     </div>
     <div class="tabs">
-        <div class="tab active" id="t-c" onclick="sw('c')">CHATS</div>
-        <div class="tab" id="t-s" onclick="sw('s')">STATUS</div>
-        <div class="tab" id="t-cl" onclick="sw('cl')">CALLS</div>
+        <div class="tab active" id="tab-c" onclick="switchTab('c')">CHATS</div>
+        <div class="tab" id="tab-s" onclick="switchTab('s')">STATUS</div>
+        <div class="tab" id="tab-cl" onclick="switchTab('cl')">CALLS</div>
     </div>
     <div id="mainMenu">
-        <div onclick="openO('prof-win')">Settings</div>
+        <div onclick="openOverlay('prof-win')">Settings</div>
         <div onclick="location.reload()">Refresh App</div>
-        <div onclick="auth.signOut()">Logout</div>
+        <div onclick="firebase.auth().signOut()">Logout</div>
     </div>
 </header>
 
 <div class="content-area">
-    <div id="p-c" class="page active"><div id="userList"></div></div>
-    <div id="p-s" class="page" style="text-align:center; padding-top:50px;">No updates.</div>
-    <div id="p-cl" class="page" style="text-align:center; padding-top:50px;">No calls.</div>
+    <div id="page-c" class="page active"><div id="user-render"></div></div>
+    <div id="page-s" class="page" style="text-align:center; padding-top:100px; color:gray;">Status tab is ready for updates.</div>
+    <div id="page-cl" class="page" style="text-align:center; padding-top:100px; color:gray;">Call history will appear here.</div>
 </div>
 
 <div id="prof-win" class="full-page">
-    <div class="fp-header"><span onclick="closeO('prof-win')" style="cursor:pointer; font-size:25px;">←</span> Settings</div>
+    <div class="fp-header"><span onclick="closeOverlay('prof-win')" style="cursor:pointer; font-size:25px;">←</span> Profile</div>
     <div style="text-align:center; padding:20px;">
-        <div class="profile-box" onclick="document.getElementById('fileInp').click()">
-            <img id="myView" src="https://via.placeholder.com/150?text=No+Photo">
+        <div class="profile-box" onclick="document.getElementById('pick').click()">
+            <img id="my-preview" src="https://via.placeholder.com/150?text=Select+Photo">
         </div>
-        <input type="file" id="fileInp" hidden accept="image/*" onchange="hPic(this)">
-        <p style="color:var(--teal); font-weight:bold;" onclick="document.getElementById('fileInp').click()">CHANGE PHOTO 📷</p>
-        <input type="text" id="myName" placeholder="Your Name" style="width:80%; padding:12px; margin-top:10px; border:1px solid #ccc; border-radius:8px;">
-        <select id="myGen" style="width:85%; padding:12px; margin-top:15px; border:1px solid #ccc; border-radius:8px;">
+        <input type="file" id="pick" hidden accept="image/*" onchange="handleImage(this)">
+        <p style="color:var(--teal); font-weight:bold;" onclick="document.getElementById('pick').click()">Click to Change Photo 📷</p>
+        
+        <input type="text" id="set-name" placeholder="Apna Name Likhein" style="width:80%; padding:14px; margin-top:10px; border:1px solid #ccc; border-radius:8px;">
+        <select id="set-gen" style="width:85%; padding:14px; margin-top:15px; border:1px solid #ccc; border-radius:8px;">
             <option value="Male">Male (Verified Blue)</option>
             <option value="Female">Female (Verified Pink)</option>
         </select>
-        <button onclick="saveP()" style="width:85%; padding:15px; margin-top:30px; background:var(--teal); color:white; border:none; border-radius:10px; font-weight:bold;">SAVE & UPDATE ✅</button>
+        <button onclick="saveProfile()" style="width:85%; padding:16px; margin-top:30px; background:var(--teal); color:white; border:none; border-radius:12px; font-weight:bold;">SAVE CHANGES ✅</button>
+    </div>
+</div>
+
+<div id="chat-win" class="full-page">
+    <div class="fp-header">
+        <span onclick="closeOverlay('chat-win')" style="cursor:pointer; font-size:25px;">←</span>
+        <img id="peer-img" style="width:38px; height:38px; border-radius:50%; background:#eee; object-fit:cover;">
+        <span id="peer-name">User</span>
+    </div>
+    <div id="msg-flow"></div>
+    <div style="padding:12px; background:#f0f0f0; display:flex; gap:10px; align-items:center;">
+        <input type="text" id="msg-input" placeholder="Message..." style="flex:1; padding:12px; border:none; border-radius:25px; outline:none;">
+        <button onclick="send()" style="background:var(--teal); color:white; border:none; width:48px; height:48px; border-radius:50%; font-size:18px;">➤</button>
     </div>
 </div>
 
@@ -87,25 +122,30 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.firestore();
-    let me = null, b64 = "";
+    let me = null, activePeer = null, currentB64 = "";
 
-    function sw(id) {
+    function switchTab(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('p-'+id).classList.add('active');
+        document.getElementById('page-'+id).classList.add('active');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('t-'+id).classList.add('active');
-        toggleM(true);
+        document.getElementById('tab-'+id).classList.add('active');
+        toggleMenu(true);
     }
 
-    function toggleM(h = false) {
+    function toggleMenu(hide = false) {
         const m = document.getElementById('mainMenu');
-        m.style.display = h ? 'none' : (m.style.display === 'block' ? 'none' : 'block');
+        m.style.display = hide ? 'none' : (m.style.display === 'block' ? 'none' : 'block');
     }
 
-    function openO(id) { document.getElementById(id).style.display = 'flex'; if(id==='prof-win') loadD(); toggleM(true); }
-    function closeO(id) { document.getElementById(id).style.display = 'none'; }
+    function openOverlay(id) { 
+        document.getElementById(id).style.display = 'flex'; 
+        if(id === 'prof-win') syncProfile();
+        toggleMenu(true);
+    }
+    function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
 
-    function hPic(input) {
+    // THE PHOTO FIX LOGIC
+    function handleImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -114,8 +154,8 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = 250; canvas.height = 250;
                     canvas.getContext('2d').drawImage(img, 0, 0, 250, 250);
-                    b64 = canvas.toDataURL('image/jpeg', 0.7);
-                    document.getElementById('myView').src = b64;
+                    currentB64 = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('my-preview').src = currentB64; // Turant Preview
                 };
                 img.src = e.target.result;
             };
@@ -123,22 +163,25 @@
         }
     }
 
-    function saveP() {
+    function saveProfile() {
         db.collection("users").doc(me.uid).set({
-            name: document.getElementById('myName').value,
-            gender: document.getElementById('myGen').value,
-            photoURL: b64,
+            name: document.getElementById('set-name').value,
+            gender: document.getElementById('set-gen').value,
+            photoURL: currentB64,
             email: me.email
-        }, {merge:true}).then(() => { alert("Profile Synced! ✅"); closeO('prof-win'); });
+        }, {merge:true}).then(() => { 
+            alert("Profile Updated Successfully! ✅"); 
+            closeOverlay('prof-win'); 
+        });
     }
 
-    function loadD() {
+    function syncProfile() {
         db.collection("users").doc(me.uid).get().then(doc => {
             if(doc.exists){
                 const d = doc.data();
-                document.getElementById('myName').value = d.name || "";
-                document.getElementById('myGen').value = d.gender || "Male";
-                if(d.photoURL) { b64 = d.photoURL; document.getElementById('myView').src = d.photoURL; }
+                document.getElementById('set-name').value = d.name || "";
+                document.getElementById('set-gen').value = d.gender || "Male";
+                if(d.photoURL) { currentB64 = d.photoURL; document.getElementById('my-preview').src = d.photoURL; }
             }
         });
     }
@@ -147,24 +190,58 @@
         if(user) {
             me = user;
             if(user.email === "vinayaktiwari@gmail.com") document.getElementById('adminBadge').style.display = 'block';
-            db.collection("users").onSnapshot(snap => {
-                const list = document.getElementById('userList'); list.innerHTML = "";
-                snap.forEach(doc => {
-                    if(doc.id !== me.uid) {
-                        const d = doc.data();
-                        list.innerHTML += `<div class="user-row">
-                            <img class="user-img" src="${d.photoURL || 'https://via.placeholder.com/50'}">
-                            <b>${d.name || d.email}</b>
-                            <div class="verify-dot ${d.gender==='Female'?'dot-female':'dot-male'}"></div>
-                        </div>`;
-                    }
-                });
-            });
+            loadUsers();
         } else {
             const e = prompt("Email:"), p = prompt("Password:");
             auth.signInWithEmailAndPassword(e,p).catch(()=>auth.createUserWithEmailAndPassword(e,p));
         }
     });
+
+    function loadUsers() {
+        db.collection("users").onSnapshot(snap => {
+            const list = document.getElementById('user-render'); list.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                if(doc.id !== me.uid) {
+                    const dotClass = d.gender === 'Female' ? 'dot-female' : 'dot-male';
+                    list.innerHTML += `
+                        <div class="user-row" onclick="initChat('${doc.id}','${d.name||d.email}','${d.photoURL||''}')">
+                            <img class="user-img" src="${d.photoURL || 'https://via.placeholder.com/50'}">
+                            <div style="flex:1;"><b>${d.name || d.email}</b><br><small style="color:gray;">Tap to message</small></div>
+                            <div class="verify-dot ${dotClass}"></div>
+                        </div>`;
+                }
+            });
+        });
+    }
+
+    function initChat(id, name, pic) {
+        activePeer = id;
+        document.getElementById('peer-name').innerText = name;
+        document.getElementById('peer-img').src = pic || 'https://via.placeholder.com/50';
+        document.getElementById('chat-win').style.display = 'flex';
+        renderMsgs();
+    }
+
+    function send() {
+        const val = document.getElementById('msg-input').value;
+        if(!val) return;
+        db.collection("chats").add({ from: me.uid, to: activePeer, msg: val, time: firebase.firestore.FieldValue.serverTimestamp() });
+        document.getElementById('msg-input').value = "";
+    }
+
+    function renderMsgs() {
+        db.collection("chats").orderBy("time").onSnapshot(snap => {
+            const flow = document.getElementById('msg-flow'); flow.innerHTML = "";
+            snap.forEach(doc => {
+                const d = doc.data();
+                if((d.from===me.uid && d.to===activePeer) || (d.from===activePeer && d.to===me.uid)) {
+                    flow.innerHTML += `<div class="bubble ${d.from===me.uid?'me':'you'}">${d.msg}</div>`;
+                }
+            });
+            flow.scrollTop = flow.scrollHeight;
+        });
+    }
 </script>
 </body>
 </html>
