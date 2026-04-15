@@ -3,123 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexChat Pro Gold</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>NexChat Pro Gold - Fully Functional</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
     <style>
-        :root { --wa-green: #075E54; --wa-teal: #128C7E; --wa-light: #25D366; --bg-gray: #e5ddd5; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        :root { --wa-green: #075E54; --wa-teal: #128C7E; --bg: #f0f2f5; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
-        /* Premium Header */
-        header { background: var(--wa-green); color: white; padding: 12px 15px; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .search-bar { background: rgba(255,255,255,0.15); border-radius: 25px; padding: 8px 15px; display: flex; align-items: center; margin-bottom: 5px; }
-        .search-bar input { background: transparent; border: none; color: white; outline: none; width: 100%; font-size: 14px; }
-        
-        /* Tabs */
-        .tab-bar { display: flex; text-transform: uppercase; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); }
-        .tab { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
+        /* Header & Tabs */
+        header { background: var(--wa-green); color: white; padding: 10px 15px 0; position: relative; z-index: 1000; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
+        .tab-bar { display: flex; text-align: center; font-size: 14px; font-weight: bold; }
+        .tab { flex: 1; padding: 12px; cursor: pointer; color: rgba(255,255,255,0.7); border-bottom: 3px solid transparent; }
         .tab.active { color: white; border-bottom-color: white; }
 
-        /* Content Areas */
-        .content { flex: 1; overflow-y: auto; background: white; }
-        .item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #ddd; overflow: hidden; position: relative; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .v-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; margin-left: 5px; }
+        /* Dropdown Menu */
+        #dropMenu { position: absolute; right: 10px; top: 50px; background: white; color: black; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 5px; display: none; width: 150px; z-index: 2000; }
+        #dropMenu div { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
 
-        /* Premium Chat Window */
-        #chatWindow { position: fixed; inset: 0; background: #efe7dd; z-index: 2000; display: none; flex-direction: column; }
-        .chat-header { background: var(--wa-teal); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
-        .chat-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://i.pinimg.com/originals/ab/ab/60/abab600fbc49fa138080987978280f93.jpg'); background-size: contain; }
-        
-        /* Attachment Menu Pop-up */
-        .attach-menu { position: absolute; bottom: 70px; left: 10px; background: white; border-radius: 15px; padding: 15px; display: none; grid-template-columns: repeat(3, 1fr); gap: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
-        .attach-item { text-align: center; font-size: 12px; color: #555; }
-        .attach-icon { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; color: white; }
+        /* Content Sections */
+        .page { flex: 1; display: none; overflow-y: auto; background: white; }
+        .page.active { display: block; }
+        .user-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .user-img { width: 50px; height: 50px; border-radius: 50%; background: #ddd; margin-right: 15px; overflow: hidden; }
+        .user-img img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Input Bar */
-        .input-bar { background: transparent; padding: 8px; display: flex; align-items: center; gap: 5px; }
-        .input-box { flex: 1; background: white; border-radius: 25px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .input-box input { border: none; outline: none; flex: 1; font-size: 16px; }
-        .round-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--wa-teal); color: white; border: none; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        /* Full Windows (Chat, Profile, Admin) */
+        .full-win { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; }
+        .win-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; font-size: 18px; }
+
+        /* Chat Styles */
+        #msgBox { flex: 1; overflow-y: auto; padding: 15px; background: #e5ddd5; display: flex; flex-direction: column; }
+        .msg { padding: 8px 12px; margin: 5px 0; border-radius: 8px; max-width: 80%; word-wrap: break-word; }
+        .sent { align-self: flex-end; background: #dcf8c6; }
+        .received { align-self: flex-start; background: white; }
+
+        /* Attach Menu */
+        #attachMenu { position: absolute; bottom: 70px; left: 15px; background: white; display: none; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; border-radius: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .attach-btn { text-align: center; font-size: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<header>
+<header id="mainHeader">
     <div class="header-top">
-        <div style="font-size: 22px; font-weight: bold;">NexChat Pro Gold</div>
-        <div style="display: flex; gap: 15px; font-size: 20px;">
-            <span>📸</span> <span onclick="toggleMenu()">⋮</span>
+        <b style="font-size: 20px;">NexChat Pro Gold</b>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div id="adminBadge" onclick="openAdmin()" style="display:none; background:gold; color:black; padding:3px 8px; border-radius:5px; font-size:12px; font-weight:bold; cursor:pointer;">ADMIN</div>
+            <span onclick="toggle3Dot()" style="cursor:pointer; font-size: 22px;">⋮</span>
         </div>
     </div>
-    <div class="search-bar">
-        <input type="text" placeholder="Search chats or business..." onkeyup="filterUsers(this.value)">
-    </div>
     <div class="tab-bar">
-        <div class="tab active" onclick="switchTab('chats', this)">Chats</div>
-        <div class="tab" onclick="switchTab('status', this)">Status</div>
-        <div class="tab" onclick="switchTab('calls', this)">Calls</div>
+        <div class="tab active" onclick="showPage('chats', this)">CHATS</div>
+        <div class="tab" onclick="showPage('status', this)">STATUS</div>
+        <div class="tab" onclick="showPage('calls', this)">CALLS</div>
+    </div>
+    <div id="dropMenu">
+        <div onclick="openProfile()">Settings</div>
+        <div onclick="location.reload()">Refresh</div>
+        <div onclick="firebase.auth().signOut()" style="color:red;">Logout</div>
     </div>
 </header>
 
-<div id="chats" class="content"><div id="userList"></div></div>
+<div id="page-chats" class="page active"><div id="userList"></div></div>
+<div id="page-status" class="page" style="text-align:center; padding-top:50px; color:gray;">No Status Updates</div>
+<div id="page-calls" class="page" style="text-align:center; padding-top:50px; color:gray;">No Recent Calls</div>
 
-<div id="profilePage" style="position:fixed; top:100%; left:0; width:100%; height:100%; background:white; z-index:5000; transition:0.3s; overflow-y:auto;">
-    <div class="chat-header">
-        <span onclick="closeProfile()" style="font-size:24px;">← Profile</span>
-    </div>
-    <div style="text-align:center; padding:30px;">
-        <div id="profPic" onclick="triggerUpload()" style="width:150px; height:150px; border-radius:50%; background:#075E54; margin:0 auto; overflow:hidden; border:5px solid #f0f0f0;">V</div>
-        <h3 id="displayName">Vinayak Tiwari</h3>
-        <p style="color:gray;">Business Account</p>
-    </div>
-    <div style="padding:20px;">
-        <label>Full Name</label><input type="text" id="editName" style="width:100%; padding:10px; border:none; border-bottom:1px solid #ddd; margin-bottom:20px;">
-        <label>Gender</label>
-        <select id="editGender" style="width:100%; padding:10px; margin-bottom:20px;">
-            <option value="Male">Male (Blue Dot)</option>
-            <option value="Female">Female (Pink Dot)</option>
+<div id="profileWin" class="full-win">
+    <div class="win-header"><span onclick="closeProfile()" style="cursor:pointer;">←</span> Profile Settings</div>
+    <div style="text-align:center; padding:20px;">
+        <div id="profCircle" onclick="clickFile()" style="width:120px; height:120px; border-radius:50%; background:#eee; margin:0 auto; border:3px solid var(--wa-teal); overflow:hidden;">
+            <img id="myDisplayImg" src="" style="width:100%; height:100%; display:none;">
+        </div>
+        <input type="file" id="fileInp" hidden accept="image/*" onchange="handleImg(this)">
+        <p style="color:var(--wa-teal); cursor:pointer;" onclick="clickFile()">Change Photo 📷</p>
+        
+        <input type="text" id="nameInp" placeholder="Your Name" style="width:80%; padding:12px; margin-top:20px; border:1px solid #ddd; border-radius:8px;">
+        <select id="genInp" style="width:85%; padding:12px; margin-top:15px; border:1px solid #ddd; border-radius:8px;">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
         </select>
-        <button onclick="saveProfile()" style="width:100%; padding:15px; background:#128C7E; color:white; border:none; border-radius:10px;">Update Business Profile</button>
+        <button onclick="saveProf()" style="width:85%; padding:15px; margin-top:30px; background:var(--wa-teal); color:white; border:none; border-radius:10px; font-weight:bold;">SAVE CHANGES</button>
     </div>
 </div>
 
-<div id="chatWindow">
-    <div class="chat-header">
-        <span onclick="closeChat()" style="font-size:24px; cursor:pointer;">←</span>
-        <div id="chatAvatar" class="avatar" style="width:35px; height:35px;"></div>
-        <div id="chatName" style="font-weight:bold; flex:1;">User</div>
-        <span>📞</span> <span>⋮</span>
+<div id="chatWin" class="full-win">
+    <div class="win-header">
+        <span onclick="closeChat()" style="cursor:pointer;">←</span>
+        <div id="chatHeadImg" style="width:35px; height:35px; border-radius:50%; background:#ddd; overflow:hidden;"></div>
+        <span id="chatHeadName">User</span>
     </div>
-    <div class="chat-body" id="msgBox"></div>
-    
-    <div class="attach-menu" id="attachMenu">
-        <div class="attach-item"><div class="attach-icon" style="background:#7e57c2;">📄</div>Docs</div>
-        <div class="attach-item" onclick="triggerUpload()"><div class="attach-icon" style="background:#f06292;">📷</div>Camera</div>
-        <div class="attach-item"><div class="attach-icon" style="background:#ba68c8;">🖼️</div>Gallery</div>
-        <div class="attach-item"><div class="attach-icon" style="background:#ff8a65;">🎵</div>Audio</div>
-        <div class="attach-item"><div class="attach-icon" style="background:#4caf50;">📍</div>Location</div>
-        <div class="attach-item"><div class="attach-icon" style="background:#03a9f4;">👤</div>Contact</div>
+    <div id="msgBox"></div>
+    <div id="attachMenu">
+        <div class="attach-btn" onclick="clickFile()">📷<br>Gallery</div>
+        <div class="attach-btn" onclick="alert('Payment Mode')">💰<br>Payment</div>
+        <div class="attach-btn" onclick="alert('Docs Mode')">📄<br>Document</div>
     </div>
-
-    <div class="input-bar">
-        <div class="input-box">
-            <span onclick="toggleAttach()" style="cursor:pointer; font-size:20px;">📎</span>
-            <input type="text" id="msgInput" placeholder="Message">
-            <span>📷</span>
-        </div>
-        <button class="round-btn" onclick="sendMsg()" id="sendBtn">🎤</button>
+    <div style="padding:10px; background:#f0f0f0; display:flex; align-items:center; gap:10px;">
+        <span onclick="toggleAttach()" style="font-size:24px; cursor:pointer;">📎</span>
+        <input type="text" id="msgInp" placeholder="Type message..." style="flex:1; padding:10px; border:none; border-radius:20px;">
+        <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; width:45px; height:45px; border-radius:50%;">➤</button>
     </div>
 </div>
 
 <script>
-    // Firebase Config (Keep your existing one)
     const firebaseConfig = {
         apiKey: "AIzaSyB56IOvxuPlVmv8vCRGcAKk0baP-WOhjyI",
         authDomain: "nexchat-48faa.firebaseapp.com",
@@ -130,89 +120,130 @@
         appId: "1:1008162413503:web:9da287c9aff061b9445f0a"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(), db = firebase.firestore(), rtdb = firebase.database();
-    let me = null, targetId = null, base64Photo = "";
+    const auth = firebase.auth(), db = firebase.firestore();
+    let me = null, targetId = null, myPhoto = "";
 
-    auth.onAuthStateChanged(user => { 
-        if(user) { me = user; loadUsers(); } 
-        else { /* Show login if needed */ }
-    });
+    // 1. Tab Switching (Status/Calls Fix)
+    function showPage(pageId, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-'+pageId).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
 
-    // Toggle Mic/Send Icon
-    document.getElementById('msgInput').oninput = function() {
-        const btn = document.getElementById('sendBtn');
-        btn.innerText = this.value.length > 0 ? "➤" : "🎤";
-    };
+    // 2. 3-Dot Menu Toggle
+    function toggle3Dot() {
+        const m = document.getElementById('dropMenu');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    }
 
+    // 3. Profile Logic (Working Photo)
+    function openProfile() { 
+        document.getElementById('profileWin').style.display = 'flex'; 
+        toggle3Dot();
+        db.collection("users").doc(me.uid).get().then(doc => {
+            if(doc.exists){
+                const d = doc.data();
+                document.getElementById('nameInp').value = d.name || "";
+                document.getElementById('genInp').value = d.gender || "Male";
+                if(d.photoURL) {
+                    myPhoto = d.photoURL;
+                    document.getElementById('myDisplayImg').src = d.photoURL;
+                    document.getElementById('myDisplayImg').style.display = 'block';
+                }
+            }
+        });
+    }
+    function closeProfile() { document.getElementById('profileWin').style.display = 'none'; }
+    function clickFile() { document.getElementById('fileInp').click(); }
+
+    function handleImg(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 250; canvas.height = 250;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 250, 250);
+                    myPhoto = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('myDisplayImg').src = myPhoto;
+                    document.getElementById('myDisplayImg').style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function saveProf() {
+        db.collection("users").doc(me.uid).set({
+            name: document.getElementById('nameInp').value,
+            gender: document.getElementById('genInp').value,
+            photoURL: myPhoto,
+            email: me.email
+        }, {merge:true}).then(() => { alert("Profile Saved! ✅"); closeProfile(); });
+    }
+
+    // 4. Chat & User List
+    function openChat(id, name, img) {
+        targetId = id;
+        document.getElementById('chatHeadName').innerText = name;
+        document.getElementById('chatHeadImg').innerHTML = img ? `<img src="${img}" style="width:100%;height:100%;">` : '';
+        document.getElementById('chatWin').style.display = 'flex';
+        loadMsgs();
+    }
+    function closeChat() { document.getElementById('chatWin').style.display = 'none'; }
     function toggleAttach() { 
         const m = document.getElementById('attachMenu');
         m.style.display = m.style.display === 'grid' ? 'none' : 'grid';
     }
 
-    function loadUsers() {
-        db.collection("users").onSnapshot(snap => {
-            const list = document.getElementById('userList'); list.innerHTML = "";
-            snap.forEach(doc => {
-                if(doc.id !== me.uid) {
-                    const d = doc.data();
-                    const div = document.createElement('div'); div.className = "item";
-                    const dotColor = d.gender === 'Female' ? '#FF69B4' : '#1E90FF';
-                    div.innerHTML = `
-                        <div class="avatar">${d.photoURL ? `<img src="${d.photoURL}">` : ''}</div>
-                        <div style="margin-left:15px; flex:1;">
-                            <div style="display:flex; align-items:center;">
-                                <b>${d.name || 'User'}</b> <div class="v-dot" style="background:${dotColor}"></div>
-                            </div>
-                            <small style="color:gray;">Tap to business chat</small>
-                        </div>
-                        <small style="color:#25D366;">12:45 PM</small>
-                    `;
-                    div.onclick = () => openChat(doc.id, d.name, d.photoURL);
-                    list.appendChild(div);
-                }
-            });
-        });
-    }
-
-    function openChat(id, name, photo) {
-        targetId = id;
-        document.getElementById('chatName').innerText = name;
-        document.getElementById('chatAvatar').innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;border-radius:50%;">` : '';
-        document.getElementById('chatWindow').style.display = 'flex';
-        loadMessages(id);
-    }
-
-    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; }
-    function openProfile() { document.getElementById('profilePage').style.top = '0'; }
-    function closeProfile() { document.getElementById('profilePage').style.top = '100%'; }
-
     function sendMsg() {
-        const input = document.getElementById('msgInput');
-        if(!input.value) return;
+        const text = document.getElementById('msgInp').value;
+        if(!text) return;
         db.collection("chats").add({
-            from: me.uid, to: targetId, msg: input.value, time: firebase.firestore.FieldValue.serverTimestamp()
+            from: me.uid, to: targetId, msg: text, time: firebase.firestore.FieldValue.serverTimestamp()
         });
-        input.value = "";
-        document.getElementById('sendBtn').innerText = "🎤";
+        document.getElementById('msgInp').value = "";
     }
 
-    function loadMessages(id) {
+    function loadMsgs() {
         db.collection("chats").orderBy("time").onSnapshot(snap => {
             const box = document.getElementById('msgBox'); box.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
-                if((d.from===me.uid && d.to===id) || (d.from===id && d.to===me.uid)) {
-                    const m = document.createElement('div');
-                    m.style = d.from===me.uid ? "align-self:flex-end; background:#dcf8c6; padding:8px 12px; margin:5px; border-radius:10px; max-width:70%;" : "align-self:flex-start; background:white; padding:8px 12px; margin:5px; border-radius:10px; max-width:70%;";
-                    m.innerText = d.msg;
-                    box.appendChild(m);
+                if((d.from===me.uid && d.to===targetId) || (d.from===targetId && d.to===me.uid)) {
+                    box.innerHTML += `<div class="msg ${d.from===me.uid?'sent':'received'}">${d.msg}</div>`;
                 }
             });
             box.scrollTop = box.scrollHeight;
         });
     }
 
-    function triggerUpload() { /* Same Base64 Logic as before */ }
+    // Auth & Init
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            me = user;
+            if(user.email === "vinayaktiwari@gmail.com") document.getElementById('adminBadge').style.display = 'block';
+            db.collection("users").onSnapshot(snap => {
+                const list = document.getElementById('userList'); list.innerHTML = "";
+                snap.forEach(doc => {
+                    if(doc.id !== me.uid) {
+                        const d = doc.data();
+                        list.innerHTML += `<div class="user-item" onclick="openChat('${doc.id}','${d.name||d.email}','${d.photoURL}')">
+                            <div class="user-img">${d.photoURL?`<img src="${d.photoURL}">`:''}</div>
+                            <b>${d.name||d.email}</b>
+                        </div>`;
+                    }
+                });
+            });
+        } else {
+            // Simple Auth Trigger
+            const e = prompt("Enter Email:"), p = prompt("Enter Password:");
+            auth.signInWithEmailAndPassword(e,p).catch(()=>auth.createUserWithEmailAndPassword(e,p));
+        }
+    });
 </script>
 </body>
 </html>
