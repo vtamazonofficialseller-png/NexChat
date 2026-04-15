@@ -3,52 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexChat Pro Gold - Final Stable</title>
+    <title>NexChat Pro Gold - Final Master</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --green: #075E54; --teal: #128C7E; --light: #dcf8c6; --white: #ffffff; }
+        :root { --green: #075E54; --teal: #128C7E; --light: #dcf8c6; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         /* Fixed Header */
         header { background: var(--green); color: white; position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px 18px; }
         .tabs { display: flex; text-align: center; }
-        .tab { flex: 1; padding: 14px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; opacity: 0.7; transition: 0.3s; }
+        .tab { flex: 1; padding: 14px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; opacity: 0.7; }
         .tab.active { opacity: 1; border-bottom: 3px solid white; }
 
-        /* Menu */
+        /* WhatsApp Style Menu */
         #mainMenu { position: absolute; right: 10px; top: 55px; background: white; color: black; border-radius: 4px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 170px; z-index: 2000; }
-        #mainMenu div { padding: 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 15px; }
+        #mainMenu div { padding: 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
 
-        /* Content Pages */
+        /* Pages Area */
         .content-area { margin-top: 105px; height: calc(100vh - 105px); overflow-y: auto; background: white; }
         .page { display: none; height: 100%; }
         .page.active { display: block; }
 
-        /* Overlays */
+        /* Overlay Windows */
         .full-page { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; }
         .fp-header { background: var(--teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; font-size: 19px; }
 
-        /* Profile Image logic */
-        .profile-box { width: 160px; height: 160px; border-radius: 50%; background: #eee; margin: 30px auto; border: 4px solid var(--teal); overflow: hidden; position: relative; }
+        /* Profile & Photo Section (The Fix) */
+        .profile-box { width: 150px; height: 150px; border-radius: 50%; background: #eee; margin: 30px auto; border: 4px solid var(--teal); overflow: hidden; position: relative; cursor: pointer; }
         .profile-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Chat List & Dots */
+        /* Verified Dots & List */
         .user-row { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f5f5f5; cursor: pointer; }
         .user-img { width: 50px; height: 50px; border-radius: 50%; background: #ddd; margin-right: 15px; object-fit: cover; }
         .verify-dot { width: 12px; height: 12px; border-radius: 50%; margin-left: auto; }
         .dot-male { background: #0084ff; box-shadow: 0 0 5px #0084ff; }
         .dot-female { background: #ff69b4; box-shadow: 0 0 5px #ff69b4; }
 
-        /* Chat UI */
+        /* Chat Bubbles */
         #msg-flow { flex: 1; padding: 15px; background: #e5ddd5; overflow-y: auto; display: flex; flex-direction: column; }
-        .bubble { padding: 8px 12px; margin: 4px; border-radius: 8px; max-width: 75%; font-size: 15px; line-height: 1.4; }
-        .bubble.me { align-self: flex-end; background: var(--light); border-top-right-radius: 0; }
-        .bubble.you { align-self: flex-start; background: white; border-top-left-radius: 0; }
+        .bubble { padding: 8px 12px; margin: 4px; border-radius: 8px; max-width: 75%; font-size: 15px; }
+        .bubble.me { align-self: flex-end; background: var(--light); }
+        .bubble.you { align-self: flex-start; background: white; }
     </style>
 </head>
 <body>
@@ -69,44 +69,44 @@
     <div id="mainMenu">
         <div onclick="openOverlay('prof-win')">Settings</div>
         <div onclick="location.reload()">Refresh App</div>
-        <div onclick="firebase.auth().signOut()" style="color:red;">Logout</div>
+        <div onclick="firebase.auth().signOut()">Logout</div>
     </div>
 </header>
 
 <div class="content-area">
-    <div id="page-c" class="page active"><div id="user-list-render"></div></div>
-    <div id="page-s" class="page" style="padding:40px; text-align:center; color:gray;">No status updates available.</div>
-    <div id="page-cl" class="page" style="padding:40px; text-align:center; color:gray;">Your call history is empty.</div>
+    <div id="page-c" class="page active"><div id="user-list-render">Loading...</div></div>
+    <div id="page-s" class="page" style="text-align:center; padding-top:50px; color:gray;">Status screen is ready.</div>
+    <div id="page-cl" class="page" style="text-align:center; padding-top:50px; color:gray;">Call history is ready.</div>
 </div>
 
 <div id="prof-win" class="full-page">
-    <div class="fp-header"><span onclick="closeOverlay('prof-win')" style="cursor:pointer; font-size:25px;">←</span> Profile Settings</div>
+    <div class="fp-header"><span onclick="closeOverlay('prof-win')" style="cursor:pointer; font-size:25px;">←</span> Profile</div>
     <div style="text-align:center; padding:20px;">
-        <div class="profile-box" onclick="document.getElementById('fileInp').click()">
-            <img id="my-preview" src="https://via.placeholder.com/160?text=Upload+Photo">
+        <div class="profile-box" onclick="document.getElementById('pick').click()">
+            <img id="my-view" src="https://via.placeholder.com/150?text=No+Photo">
         </div>
-        <input type="file" id="fileInp" hidden accept="image/*" onchange="processImage(this)">
-        <p style="color:var(--teal); font-weight:bold; cursor:pointer;" onclick="document.getElementById('fileInp').click()">CHANGE PHOTO 📷</p>
+        <input type="file" id="pick" hidden accept="image/*" onchange="handlePhoto(this)">
+        <p style="color:var(--teal); font-weight:bold;" onclick="document.getElementById('pick').click()">Photo Badaliye 📷</p>
         
-        <input type="text" id="name-field" placeholder="Full Name" style="width:85%; padding:14px; margin-top:15px; border:1px solid #ddd; border-radius:8px; font-size:16px;">
-        <select id="gender-field" style="width:90%; padding:14px; margin-top:15px; border:1px solid #ddd; border-radius:8px; font-size:16px;">
-            <option value="Male">Male (Verified Blue)</option>
-            <option value="Female">Female (Verified Pink)</option>
+        <input type="text" id="my-name" placeholder="Apna Name" style="width:80%; padding:14px; margin-top:10px; border:1px solid #ccc; border-radius:8px;">
+        <select id="my-gen" style="width:85%; padding:14px; margin-top:15px; border:1px solid #ccc; border-radius:8px;">
+            <option value="Male">Male (Blue Dot)</option>
+            <option value="Female">Female (Pink Dot)</option>
         </select>
-        <button onclick="saveFinal()" style="width:90%; padding:16px; margin-top:40px; background:var(--teal); color:white; border:none; border-radius:12px; font-weight:bold; font-size:16px; box-shadow: 0 4px 10px rgba(18,140,126,0.3);">SAVE & UPDATE ✅</button>
+        <button onclick="saveAll()" style="width:85%; padding:16px; margin-top:30px; background:var(--teal); color:white; border:none; border-radius:12px; font-weight:bold;">SAVE EVERYTHING ✅</button>
     </div>
 </div>
 
 <div id="chat-win" class="full-page">
     <div class="fp-header">
         <span onclick="closeOverlay('chat-win')" style="cursor:pointer; font-size:25px;">←</span>
-        <img id="target-img" style="width:38px; height:38px; border-radius:50%; background:#eee; object-fit:cover;">
-        <span id="target-name-chat">User</span>
+        <img id="chat-peer-img" style="width:38px; height:38px; border-radius:50%; background:#eee; object-fit:cover;">
+        <span id="chat-peer-name">User</span>
     </div>
     <div id="msg-flow"></div>
-    <div style="padding:12px; background:#f0f0f0; display:flex; gap:10px; align-items:center; border-top:1px solid #ddd;">
-        <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1; padding:12px 18px; border:none; border-radius:25px; font-size:15px; outline:none;">
-        <button onclick="sendFinalMsg()" style="background:var(--teal); color:white; border:none; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px;">➤</button>
+    <div style="padding:12px; background:#f0f0f0; display:flex; gap:10px;">
+        <input type="text" id="msg-input" placeholder="Message..." style="flex:1; padding:12px; border:none; border-radius:25px;">
+        <button onclick="sendMsg()" style="background:var(--teal); color:white; border:none; width:48px; height:48px; border-radius:50%;">➤</button>
     </div>
 </div>
 
@@ -122,9 +122,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth(), db = firebase.firestore();
-    let me = null, activePeer = null, globalBase64 = "";
+    let me = null, activeTarget = null, currentBase64 = "";
 
-    // 1. Navigation & Menu
     function switchT(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById('page-'+id).classList.add('active');
@@ -133,31 +132,30 @@
         toggleMenu(true);
     }
 
-    function toggleMenu(forceHide = false) {
+    function toggleMenu(hide = false) {
         const m = document.getElementById('mainMenu');
-        if(forceHide) m.style.display = 'none';
-        else m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        m.style.display = hide ? 'none' : (m.style.display === 'block' ? 'none' : 'block');
     }
 
     function openOverlay(id) { 
         document.getElementById(id).style.display = 'flex'; 
-        if(id === 'prof-win') syncMyProfile();
+        if(id === 'prof-win') loadMyData();
         toggleMenu(true);
     }
     function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
 
-    // 2. Profile Logic
-    function processImage(input) {
+    // THE PHOTO LOGIC (No Storage Required)
+    function handlePhoto(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = 300; canvas.height = 300;
-                    canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
-                    globalBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                    document.getElementById('my-preview').src = globalBase64;
+                    canvas.width = 250; canvas.height = 250;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 250, 250);
+                    currentBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('my-view').src = currentBase64;
                 };
                 img.src = e.target.result;
             };
@@ -165,90 +163,77 @@
         }
     }
 
-    function saveFinal() {
+    function saveAll() {
         db.collection("users").doc(me.uid).set({
-            name: document.getElementById('name-field').value,
-            gender: document.getElementById('gender-field').value,
-            photoURL: globalBase64,
+            name: document.getElementById('my-name').value,
+            gender: document.getElementById('my-gen').value,
+            photoURL: currentBase64,
             email: me.email
-        }, {merge:true}).then(() => { 
-            alert("Profile Synced! ✅"); 
-            closeOverlay('prof-win'); 
-        });
+        }, {merge:true}).then(() => { alert("Saved Successfully! ✅"); closeOverlay('prof-win'); });
     }
 
-    function syncMyProfile() {
+    function loadMyData() {
         db.collection("users").doc(me.uid).get().then(doc => {
             if(doc.exists){
                 const d = doc.data();
-                document.getElementById('name-field').value = d.name || "";
-                document.getElementById('gender-field').value = d.gender || "Male";
-                if(d.photoURL) {
-                    globalBase64 = d.photoURL;
-                    document.getElementById('my-preview').src = d.photoURL;
-                }
+                document.getElementById('my-name').value = d.name || "";
+                document.getElementById('my-gen').value = d.gender || "Male";
+                if(d.photoURL) { currentBase64 = d.photoURL; document.getElementById('my-view').src = d.photoURL; }
             }
         });
     }
 
-    // 3. Chat & User Management
     auth.onAuthStateChanged(user => {
         if(user) {
             me = user;
             if(user.email === "vinayaktiwari@gmail.com") document.getElementById('adminBadge').style.display = 'block';
-            renderUsers();
+            fetchUsers();
         } else {
             const e = prompt("Email:"), p = prompt("Password:");
             auth.signInWithEmailAndPassword(e,p).catch(()=>auth.createUserWithEmailAndPassword(e,p));
         }
     });
 
-    function renderUsers() {
+    function fetchUsers() {
         db.collection("users").onSnapshot(snap => {
             const list = document.getElementById('user-list-render'); list.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
                 if(doc.id !== me.uid) {
-                    const dotClass = d.gender === 'Female' ? 'dot-female' : 'dot-male';
+                    const dot = d.gender === 'Female' ? 'dot-female' : 'dot-male';
                     list.innerHTML += `
-                        <div class="user-row" onclick="initChat('${doc.id}','${d.name||d.email}','${d.photoURL||''}')">
+                        <div class="user-row" onclick="startChat('${doc.id}','${d.name||d.email}','${d.photoURL||''}')">
                             <img class="user-img" src="${d.photoURL || 'https://via.placeholder.com/50'}">
-                            <div style="flex:1;">
-                                <b style="font-size:16px;">${d.name || d.email}</b><br>
-                                <small style="color:gray;">Tap to chat</small>
-                            </div>
-                            <div class="verify-dot ${dotClass}"></div>
+                            <div style="flex:1;"><b>${d.name || d.email}</b><br><small style="color:gray;">Tap to message</small></div>
+                            <div class="verify-dot ${dot}"></div>
                         </div>`;
                 }
             });
         });
     }
 
-    function initChat(id, name, pic) {
-        activePeer = id;
-        document.getElementById('target-name-chat').innerText = name;
-        document.getElementById('target-img').src = pic || 'https://via.placeholder.com/50';
+    function startChat(id, name, pic) {
+        activeTarget = id;
+        document.getElementById('chat-peer-name').innerText = name;
+        document.getElementById('chat-peer-img').src = pic || 'https://via.placeholder.com/50';
         document.getElementById('chat-win').style.display = 'flex';
-        loadMessages();
+        loadChat();
     }
 
-    function sendFinalMsg() {
-        const val = document.getElementById('chat-input').value;
-        if(!val) return;
-        db.collection("chats").add({
-            from: me.uid, to: activePeer, msg: val, time: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('chat-input').value = "";
+    function sendMsg() {
+        const txt = document.getElementById('msg-input').value;
+        if(!txt) return;
+        db.collection("chats").add({ from: me.uid, to: activeTarget, msg: txt, time: firebase.firestore.FieldValue.serverTimestamp() });
+        document.getElementById('msg-input').value = "";
     }
 
-    function loadMessages() {
+    function loadChat() {
         db.collection("chats").orderBy("time").onSnapshot(snap => {
             const flow = document.getElementById('msg-flow'); flow.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
-                if((d.from===me.uid && d.to===activePeer) || (d.from===activePeer && d.to===me.uid)) {
-                    const side = d.from === me.uid ? 'me' : 'you';
-                    flow.innerHTML += `<div class="bubble ${side}">${d.msg}</div>`;
+                if((d.from===me.uid && d.to===activeTarget) || (d.from===activeTarget && d.to===me.uid)) {
+                    flow.innerHTML += `<div class="bubble ${d.from===me.uid?'me':'you'}">${d.msg}</div>`;
                 }
             });
             flow.scrollTop = flow.scrollHeight;
