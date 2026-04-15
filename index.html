@@ -3,91 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexChat Business</title>
+    <title>NexChat Master Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <style>
         :root { --wa-green: #075E54; --wa-teal: #128C7E; --white: #FFFFFF; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: #F0F2F5; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        header { background: var(--wa-green); color: white; padding: 15px 15px 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .brand { font-size: 21px; font-weight: 700; cursor: pointer; user-select: none; }
-        .tab-bar { display: flex; margin-top: 15px; text-transform: uppercase; font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 700; }
-        .tab { flex: 1; text-align: center; padding-bottom: 10px; }
-        .tab.active { color: white; border-bottom: 3px solid white; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: #F0F2F5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        .chat-list { background: white; flex: 1; overflow-y: auto; }
-        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
-        .avatar-box { position: relative; margin-right: 15px; }
-        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #dfe5e7; overflow: hidden; border: 1px solid #ddd; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .chat-info { flex: 1; }
-        .chat-name { font-weight: 500; font-size: 16px; color: #111b21; }
-        .chat-msg { font-size: 14px; color: #667781; margin-top: 4px; }
+        /* Banned Screen Overlay */
+        #bannedOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        
+        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; }
+        .brand { font-size: 21px; font-weight: 700; cursor: pointer; padding-bottom: 10px; }
+        .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 700; }
+        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
+        .tab.active { color: white; border-bottom: 4px solid white; }
 
-        /* Slide-up Windows */
-        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: #F0F2F5; z-index: 1000; transition: 0.4s ease; }
+        .content { flex: 1; overflow-y: auto; background: white; }
+        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: #F0F2F5; z-index: 1000; transition: 0.4s ease; overflow-y: auto; }
         .window.active { top: 0; }
-        .win-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; font-size: 18px; font-weight: 500; }
-        
-        .admin-card { background: white; margin: 15px; padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .btn { background: var(--wa-teal); color: white; padding: 12px; border: none; width: 100%; border-radius: 5px; font-weight: 500; cursor: pointer; }
+        .win-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; }
+
+        /* Admin Styles */
+        .admin-section { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 150px; font-family: monospace; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; background: var(--wa-teal); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-ban { background: #cc0000; margin-top: 5px; }
     </style>
 </head>
 <body>
 
+<div id="bannedOverlay">
+    <h1 style="color: #cc0000;">Account Banned 🚫</h1>
+    <p>Aapka account NexChat ke rules todne ki wajah se ban kar diya gaya hai.</p>
+    <button onclick="location.reload()" class="btn" style="width: auto; padding: 10px 30px;">Refresh Status</button>
+</div>
+
 <header>
     <div class="brand" id="adminTrigger">NexChat Business</div>
     <div class="tab-bar">
-        <div class="tab" style="flex:0.3">📷</div>
         <div class="tab active">Chats</div>
         <div class="tab">Status</div>
         <div class="tab">Calls</div>
     </div>
 </header>
 
-<div class="chat-list">
-    <div class="chat-item" onclick="openChat('Technical Support')">
-        <div class="avatar-box">
-            <div class="avatar" onclick="event.stopPropagation(); alert('Profile click working! Firebase connect hone par gallery khulegi.')">
-                <img id="mainAvatar" src="https://via.placeholder.com/150" alt="Support">
-            </div>
-        </div>
-        <div class="chat-info">
-            <div class="chat-name">Technical Support</div>
-            <div class="chat-msg">Click here to test chat window...</div>
-        </div>
-    </div>
+<div class="content">
+    <div style="padding: 20px; text-align: center; color: #888;">Chat List Loading...</div>
 </div>
 
 <div id="adminPanel" class="window">
     <div class="win-header">
         <span onclick="closeWin('adminPanel')" style="cursor:pointer; font-size:24px;">←</span>
-        <span>Master Admin Settings</span>
+        <span>Master Inventory & Control</span>
     </div>
-    <div class="admin-card">
-        <h3>App Configuration</h3>
-        <p>Email Verified: <b>vinayakglobaldream@gmail.com</b></p>
-        <input type="text" id="waNum" placeholder="WhatsApp Number" value="+918808722351">
-        <button class="btn" onclick="saveData()">Save & Sync Firebase</button>
+    
+    <div class="admin-section">
+        <h3>User Control (Ban/Unban)</h3>
+        <input type="text" id="targetUser" placeholder="Enter User Phone Number">
+        <button class="btn btn-ban" onclick="changeUserStatus('banned')">Ban User 🚫</button>
+        <button class="btn" style="background: #25D366;" onclick="changeUserStatus('active')">Unban User ✅</button>
     </div>
-</div>
 
-<div id="chatWindow" class="window">
-    <div class="win-header">
-        <span onclick="closeWin('chatWindow')" style="cursor:pointer; font-size:24px;">←</span>
-        <span id="chatTitle">Name</span>
-    </div>
-    <div style="padding: 20px; text-align: center; color: #888; font-size: 14px;">
-        <p>🔒 Messages are end-to-end encrypted.</p>
+    <div class="admin-section">
+        <h3>Live Code Inventory (Auto-Update)</h3>
+        <p style="font-size: 12px; color: #666;">Yahan jo bhi code dalenge, wo bina app update kiye sabke paas chala jayega.</p>
+        <textarea id="inventoryCode" placeholder="// Write new JS functions here..."></textarea>
+        <button class="btn" onclick="pushUpdate()">Push Update to All Users 🚀</button>
     </div>
 </div>
 
 <script>
-    // --- INSERT YOUR FIREBASE CONFIG HERE ---
+    // Firebase Setup
     const firebaseConfig = {
         apiKey: "AIzaSyB56IOvxuPlVmv8vCRGcAKk0baP-WOhjyI",
         authDomain: "nexchat-48faa.firebaseapp.com",
@@ -97,32 +86,66 @@
         appId: "1:1008162413503:web:9da287c9aff061b9445f0a"
     };
     firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // 7-Tap Admin Logic
-    let taps = 0;
-    const trigger = document.getElementById('adminTrigger');
-    trigger.addEventListener('click', () => {
-        taps++;
-        if (taps === 7) {
-            let email = prompt("Enter Master Admin Email:");
-            if (email === "vinayakglobaldream@gmail.com") {
-                document.getElementById('adminPanel').classList.add('active');
-            } else { alert("Unauthorized!"); }
-            taps = 0;
-        }
-    });
-
-    // Reset taps if user takes too long
-    setInterval(() => { taps = 0; }, 3000);
-
-    function openChat(name) {
-        document.getElementById('chatTitle').innerText = name;
-        document.getElementById('chatWindow').classList.add('active');
+    // 1. Check if Current User is Banned
+    // (Testing ke liye hum ek dummy number use kar rahe hain)
+    function checkBanStatus(userNumber) {
+        db.collection("users").doc(userNumber).onSnapshot((doc) => {
+            if (doc.exists && doc.data().status === 'banned') {
+                document.getElementById('bannedOverlay').style.display = 'flex';
+            } else {
+                document.getElementById('bannedOverlay').style.display = 'none';
+            }
+        });
     }
 
-    function closeWin(id) { document.getElementById(id).classList.remove('active'); }
-    function saveData() { alert("Firebase Synced Successfully!"); closeWin('adminPanel'); }
-</script>
+    // 2. Load Inventory Code (Auto-Execution)
+    function loadRemoteInventory() {
+        db.collection("updates").doc("inventory").onSnapshot((doc) => {
+            if (doc.exists) {
+                const remoteCode = doc.data().code;
+                try {
+                    eval(remoteCode); // This executes the code you write in Admin Panel
+                    console.log("Inventory Update Applied!");
+                } catch (e) {
+                    console.error("Code Error:", e);
+                }
+            }
+        });
+    }
 
+    // Admin Functions
+    function changeUserStatus(newStatus) {
+        const phone = document.getElementById('targetUser').value;
+        if(!phone) return alert("Number daaliye!");
+        db.collection("users").doc(phone).set({ status: newStatus }, { merge: true })
+        .then(() => alert("User " + newStatus + " successfully!"));
+    }
+
+    function pushUpdate() {
+        const code = document.getElementById('inventoryCode').value;
+        db.collection("updates").doc("inventory").set({ code: code })
+        .then(() => alert("Update Pushed to All Users!"));
+    }
+
+    // 7-Tap Admin
+    let taps = 0;
+    document.getElementById('adminTrigger').onclick = () => {
+        taps++;
+        if(taps === 7) {
+            let email = prompt("Master Email:");
+            if(email === "vinayakglobaldream@gmail.com") document.getElementById('adminPanel').classList.add('active');
+            taps = 0;
+        }
+    };
+
+    function closeWin(id) { document.getElementById(id).classList.remove('active'); }
+
+    // Start App
+    checkBanStatus("+918808722351"); // Yahan user ka number aayega
+    loadRemoteInventory();
+
+</script>
 </body>
 </html>
