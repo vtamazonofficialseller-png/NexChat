@@ -28,7 +28,7 @@
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #ccc; }
         .status-dot.online { background: var(--online); }
-        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:170px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; overflow:hidden; }
+        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; overflow:hidden; }
         .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
         #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 1500; display: none; flex-direction: column; }
         .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 12px; }
@@ -45,7 +45,7 @@
 
 <div id="loginPage" class="overlay">
     <h2 style="color:var(--wa-green)">NexChat Business</h2>
-    <input type="email" id="logEmail" placeholder="Email" style="width:80%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
+    <input type="email" id="logEmail" placeholder="Email Address" style="width:80%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
     <div style="position: relative; width: 85%; margin: 10px auto;">
         <input type="password" id="logPass" placeholder="Password" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:10px;">
         <span id="togglePass" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="togglePW()">👁️</span>
@@ -74,7 +74,7 @@
 </header>
 
 <div id="s-chats" class="content-area active"><div id="userList"></div></div>
-<div id="s-status" class="content-area" style="padding:20px;">No updates.</div>
+<div id="s-status" class="content-area" style="padding:20px;">No updates yet.</div>
 <div id="s-calls" class="content-area" style="padding:20px;">No recent calls.</div>
 
 <button id="fab" onclick="openContacts()">👤+</button>
@@ -91,17 +91,38 @@
 <div id="profilePage" class="window">
     <div class="chat-header">
         <span onclick="document.getElementById('profilePage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
-        <span>Edit Profile</span>
+        <span>Profile Settings</span>
     </div>
     <div style="text-align: center; padding: 20px;">
         <div id="profPic" onclick="triggerUpload()" style="width:110px; height:110px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto; cursor:pointer; overflow:hidden; border: 3px solid #eee;">V</div>
         <p style="color:var(--wa-teal); font-weight:bold; cursor:pointer;" onclick="triggerUpload()">Change Photo 📷</p>
     </div>
-    <div class="edit-group"><label>Full Name</label><input type="text" id="editName"></div>
-    <div class="edit-group"><label>Nick Name</label><input type="text" id="editNick"></div>
+    
+    <div class="edit-group"><label>App Language</label>
+        <select id="appLang">
+            <option value="en">English (Official)</option>
+            <option value="hi">Hindi (Coming Soon)</option>
+            <option value="mr">Marathi (Coming Soon)</option>
+        </select>
+    </div>
+
+    <div class="edit-group"><label>Country</label>
+        <select id="editCountry">
+            <option value="India">India</option>
+            <option value="USA">United States</option>
+            <option value="UK">United Kingdom</option>
+            <option value="UAE">United Arab Emirates</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+        </select>
+    </div>
+
+    <div class="edit-group"><label>Full Name</label><input type="text" id="editName" placeholder="Enter your full name"></div>
+    <div class="edit-group"><label>Nick Name</label><input type="text" id="editNick" placeholder="Enter nickname"></div>
     <div class="edit-group"><label>Gender</label><select id="editGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
     <div class="edit-group"><label>Date of Birth</label><input type="date" id="editDOB"></div>
-    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 20px 5%; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Save Profile ✅</button>
+    
+    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 20px 5%; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Update Profile ✅</button>
 </div>
 
 <div id="chatWindow">
@@ -138,6 +159,7 @@
 
     function authAction() {
         const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
+        if(!e || !p) { alert("Please fill credentials"); return; }
         auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
     }
 
@@ -151,7 +173,6 @@
         } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
-    // PHOTO UPLOAD LOGIC
     function triggerUpload() {
         const input = document.createElement('input');
         input.type = 'file'; input.accept = 'image/*';
@@ -163,9 +184,8 @@
                 ref.getDownloadURL().then(url => {
                     db.collection("users").doc(me.uid).update({ photoURL: url });
                     document.getElementById('profPic').innerHTML = `<img src="${url}">`;
-                    alert("Photo Updated!");
                 });
-            }).catch(err => alert("Storage Error: Enable Storage in Firebase Console!"));
+            }).catch(err => alert("Error uploading photo. Check storage rules!"));
         };
         input.click();
     }
@@ -175,12 +195,13 @@
             name: document.getElementById('editName').value,
             nickname: document.getElementById('editNick').value,
             gender: document.getElementById('editGender').value,
-            dob: document.getElementById('editDOB').value
+            dob: document.getElementById('editDOB').value,
+            country: document.getElementById('editCountry').value,
+            language: document.getElementById('appLang').value
         };
         db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => {
             alert("Profile Updated Successfully! ✅");
             document.getElementById('profilePage').classList.remove('active');
-            loadUsers();
         }).catch(err => alert("Error: " + err.message));
     }
 
@@ -192,6 +213,8 @@
                 document.getElementById('editNick').value = d.nickname || "";
                 document.getElementById('editGender').value = d.gender || "Male";
                 document.getElementById('editDOB').value = d.dob || "";
+                document.getElementById('editCountry').value = d.country || "India";
+                document.getElementById('appLang').value = d.language || "en";
                 if(d.photoURL) document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}">`;
                 else document.getElementById('profPic').innerText = (d.name || me.email)[0].toUpperCase();
             }
@@ -208,7 +231,7 @@
                     const d = doc.data();
                     const div = document.createElement('div'); div.className = "item";
                     const avatarContent = d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase();
-                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${avatarContent}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div style="margin-left:15px;"><b>${d.name || d.email}</b></div>`;
+                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${avatarContent}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div style="margin-left:15px;"><b>${d.name || d.email}</b><br><small>${d.country || ''}</small></div>`;
                     div.onclick = () => openChat(doc.id, d.name || d.email);
                     list.appendChild(div);
                     rtdb.ref('/status/'+doc.id).on('value', s => {
@@ -220,7 +243,6 @@
         });
     }
 
-    // OTHER UTILITIES
     function openContacts() {
         document.getElementById('contactPage').classList.add('active');
         const list = document.getElementById('registeredUsers'); list.innerHTML = "";
