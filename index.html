@@ -3,201 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NexChat Business</title>
+    <title>NexChat Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <style>
-        :root {
-            --wa-green: #075E54;
-            --wa-teal: #128C7E;
-            --wa-light-green: #25D366;
-            --bg-light: #F0F2F5;
-            --white: #FFFFFF;
-            --grey-text: #667781;
-            --black: #111B21;
-        }
-
-        body { 
-            margin: 0; font-family: 'Roboto', sans-serif; 
-            background-color: var(--bg-light); display: flex; flex-direction: column; height: 100vh;
-            overflow: hidden;
-        }
-
-        /* Header Style */
-        header { background-color: var(--wa-green); color: var(--white); padding: 15px 15px 0 15px; position: sticky; top: 0; z-index: 100; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .brand { font-size: 21px; font-weight: 700; cursor: pointer; }
-        .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
-        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
-        .tab.active { color: var(--white); border-bottom: 3px solid var(--white); }
-
-        /* Chat List */
-        .chat-container { flex: 1; overflow-y: auto; background: var(--white); }
-        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
-        .profile-p-box { position: relative; margin-right: 15px; }
-        .profile-p { width: 55px; height: 55px; border-radius: 50%; background: #dfe5e7; overflow: hidden; }
-        .profile-p img { width: 100%; height: 100%; object-fit: cover; }
-        .chat-details { flex: 1; }
-        .chat-name { font-weight: 500; font-size: 16px; color: var(--black); }
-        .chat-msg { font-size: 14px; color: var(--grey-text); margin-top: 4px; }
-
-        /* Floating Windows (Admin/Chat) */
-        #masterPanel, #chatWindow {
-            position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: var(--bg-light); z-index: 1000; transition: 0.4s ease-in-out;
-        }
-        .active-window { top: 0 !important; }
-
-        .win-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
-        .admin-content { padding: 20px; }
-        .admin-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        :root { --wa-green: #075E54; --wa-teal: #128C7E; --white: #FFFFFF; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: #F0F2F5; overflow: hidden; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .save-btn { background: var(--wa-teal); color: white; padding: 14px; border: none; width: 100%; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
-
-        /* FAB */
-        .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--wa-light-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); color: white; font-size: 24px; cursor: pointer; }
-
-        /* Modal */
-        #photoModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1100; display: none; justify-content: center; align-items: flex-end; }
-        .photo-options { background: white; width: 100%; padding: 20px; border-radius: 20px 20px 0 0; }
-        .option { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        header { background: var(--wa-green); color: white; padding: 15px 15px 10px; }
+        .brand { font-size: 20px; font-weight: 700; cursor: pointer; padding: 5px; display: inline-block; }
+        
+        .chat-list { background: white; height: calc(100vh - 100px); overflow-y: auto; }
+        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #ccc; margin-right: 15px; }
+        
+        /* Slide-up Panels */
+        .panel { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; transition: 0.3s; }
+        .panel.open { top: 0; }
+        .panel-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="top-bar">
-            <div class="brand" id="adminTrigger">NexChat Business</div>
-            <div>🔍 ⋮</div>
-        </div>
-        <div class="tab-bar">
-            <div style="flex: 0.5;">📷</div>
-            <div class="tab active">Chats</div>
-            <div class="tab">Status</div>
-            <div class="tab">Calls</div>
-        </div>
-    </header>
+<header>
+    <div class="brand" id="adminBtn">NexChat Business</div>
+</header>
 
-    <div class="chat-container">
-        <div class="chat-item" onclick="openChat('Technical Support')">
-            <div class="profile-p-box">
-                <div class="profile-p" onclick="event.stopPropagation(); showPhotoOptions()">
-                    <img id="profileDisplay" src="https://via.placeholder.com/150" alt="Profile">
-                </div>
-            </div>
-            <div class="chat-details">
-                <div class="chat-name">Technical Support</div>
-                <div class="chat-msg">Click to start conversation...</div>
-            </div>
+<div class="chat-list">
+    <div class="chat-item" onclick="showPanel('chatPanel')">
+        <div class="avatar"></div>
+        <div>
+            <div style="font-weight:500">Technical Support</div>
+            <div style="font-size:14px; color:#666">Click to test chat button</div>
         </div>
     </div>
+</div>
 
-    <div class="fab">💬</div>
-
-    <div id="masterPanel">
-        <div class="win-header">
-            <span onclick="closeWindow('masterPanel')" style="cursor:pointer; font-size:24px;">←</span>
-            <h2>Master Admin Panel</h2>
-        </div>
-        <div class="admin-content">
-            <div class="admin-card">
-                <h3>Support Settings</h3>
-                <input type="text" id="waLink" placeholder="WhatsApp Number" value="+918808722351">
-                <button class="save-btn" onclick="updateConfig()">Save Settings</button>
-            </div>
-            <div class="admin-card">
-                <h3>App Control</h3>
-                <p>Status: <span style="color:green; font-weight:bold;">Live</span></p>
-                <button class="save-btn" style="background:#cc0000;">Broadcast Message</button>
-            </div>
-        </div>
+<div id="adminPanel" class="panel">
+    <div class="panel-header">
+        <span onclick="closePanel('adminPanel')" style="cursor:pointer; font-size:24px;">←</span>
+        <span>Master Admin</span>
     </div>
-
-    <div id="chatWindow">
-        <div class="win-header">
-            <span onclick="closeWindow('chatWindow')" style="cursor:pointer; font-size:24px;">←</span>
-            <h2 id="chatName">Contact Name</h2>
-        </div>
-        <div id="msgArea" style="flex:1; padding:20px; overflow-y:auto;">
-            <p style="text-align:center; color:#888;">No messages yet.</p>
-        </div>
+    <div style="padding: 20px;">
+        <h3>Admin Settings Working!</h3>
+        <p>Aapka email verify ho gaya hai.</p>
     </div>
+</div>
 
-    <div id="photoModal" onclick="this.style.display='none'">
-        <div class="photo-options" onclick="event.stopPropagation()">
-            <div class="option" onclick="document.getElementById('galleryIn').click();">🖼️ Gallery</div>
-            <div class="option" onclick="document.getElementById('cameraIn').click();">📷 Camera (Selfie)</div>
-        </div>
+<div id="chatPanel" class="panel">
+    <div class="panel-header">
+        <span onclick="closePanel('chatPanel')" style="cursor:pointer; font-size:24px;">←</span>
+        <span>Chatting...</span>
     </div>
+    <div style="padding: 20px; text-align: center; color: #888;">
+        Chat interface open ho raha hai.
+    </div>
+</div>
 
-    <input type="file" id="galleryIn" style="display:none" accept="image/*" onchange="uploadImage(this)">
-    <input type="file" id="cameraIn" style="display:none" accept="image/*" capture="user" onchange="uploadImage(this)">
+<script>
+    // --- TESTING WITHOUT FIREBASE FIRST ---
+    let taps = 0;
+    const adminBtn = document.getElementById('adminBtn');
 
-    <script>
-        // --- YOUR FIREBASE CONFIG ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB56IOvxuPlVmv8vCRGcAKk0baP-WOhjyI",
-            authDomain: "nexchat-48faa.firebaseapp.com",
-            projectId: "nexchat-48faa",
-            storageBucket: "nexchat-48faa.firebasestorage.app",
-            messagingSenderId: "1008162413503",
-            appId: "1:1008162413503:web:9da287c9aff061b9445f0a",
-            measurementId: "G-7VG7M52C3R"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-
-        // 7-Tap Logic
-        let tapCount = 0;
-        document.getElementById('adminTrigger').onclick = function() {
-            tapCount++;
-            if(tapCount === 7) {
-                let mail = prompt("Enter Admin Email:");
-                if(mail === "vinayakglobaldream@gmail.com") {
-                    document.getElementById('masterPanel').classList.add('active-window');
-                } else { alert("Access Denied!"); }
-                tapCount = 0;
+    // 7-Tap Logic
+    adminBtn.addEventListener('click', function() {
+        taps++;
+        console.log("Taps count:", taps);
+        if (taps === 7) {
+            let pass = prompt("Enter Admin Email:");
+            if (pass === "vinayakglobaldream@gmail.com") {
+                document.getElementById('adminPanel').classList.add('open');
+            } else {
+                alert("Wrong Email!");
             }
-        };
-
-        // UI Functions
-        function openChat(name) {
-            document.getElementById('chatName').innerText = name;
-            document.getElementById('chatWindow').classList.add('active-window');
+            taps = 0;
         }
-        function closeWindow(id) { document.getElementById(id).classList.remove('active-window'); }
-        function showPhotoOptions() { document.getElementById('photoModal').style.display = 'flex'; }
+    });
 
-        // Image Upload Logic
-        function uploadImage(input) {
-            const file = input.files[0];
-            if(!file) return;
+    function showPanel(id) {
+        document.getElementById(id).classList.add('open');
+    }
 
-            // Preview immediately
-            const reader = new FileReader();
-            reader.onload = (e) => document.getElementById('profileDisplay').src = e.target.result;
-            reader.readAsDataURL(file);
+    function closePanel(id) {
+        document.getElementById(id).classList.remove('open');
+    }
 
-            // Upload to Firebase Storage
-            const storageRef = storage.ref('profiles/' + Date.now() + "_" + file.name);
-            storageRef.put(file).then(snapshot => {
-                alert("Image Saved Permanently!");
-                document.getElementById('photoModal').style.display = 'none';
-            }).catch(err => alert("Error: Make sure Firebase Storage Rules are set to 'true'"));
-        }
+    // Auto-reset taps after 3 seconds
+    setInterval(() => { taps = 0; }, 3000);
+</script>
 
-        function updateConfig() {
-            alert("Settings Updated in Firebase!");
-            closeWindow('masterPanel');
-        }
-    </script>
 </body>
 </html>
