@@ -17,7 +17,7 @@
         /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         
-        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; }
+        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; }
         .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 10px; }
         .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
         .tab.active { color: white; border-bottom: 4px solid white; }
@@ -32,6 +32,11 @@
         .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #ccc; }
         .status-dot.online { background: var(--online); }
 
+        /* Dropdown Menu */
+        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:150px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; overflow:hidden; }
+        .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; text-align: left; }
+        .menu-item:hover { background:#f9f9f9; }
+
         /* Chat Window */
         #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 1500; display: none; flex-direction: column; }
         .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 12px; }
@@ -41,7 +46,6 @@
         .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
         .input-bar input { flex: 1; padding: 12px; border-radius: 25px; border: none; outline: none; }
         
-        /* Logo Styling */
         .logo-svg { width: 80px; height: 80px; margin-bottom: 15px; }
     </style>
 </head>
@@ -50,16 +54,34 @@
 <div id="loginPage" class="overlay">
     <svg class="logo-svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#075E54"/><path d="M70 50c0 11-9 20-20 20-3 0-7-1-10-3l-10 3 3-10c-2-3-3-7-3-10 0-11 9-20 20-20s20 9 20 20z" fill="white"/></svg>
     <h2 style="color:var(--wa-green)">NexChat Business</h2>
-    <input type="email" id="logEmail" placeholder="Email" style="width:80%; padding:12px; margin:10px; border:1px solid #ddd; border-radius:8px;">
-    <input type="password" id="logPass" placeholder="Password" style="width:80%; padding:12px; margin:10px; border:1px solid #ddd; border-radius:8px;">
-    <button onclick="authAction()" style="width:85%; padding:12px; background:var(--wa-teal); color:white; border:none; border-radius:8px; font-weight:bold;">Login</button>
+    <input type="email" id="logEmail" placeholder="Email" style="width:80%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
+    
+    <div style="position: relative; width: 85%; margin: 10px auto;">
+        <input type="password" id="logPass" placeholder="Password" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:10px; box-sizing: border-box;">
+        <span id="togglePass" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 18px;" onclick="togglePW()">👁️</span>
+    </div>
+
+    <button onclick="authAction()" style="width:85%; padding:14px; background:var(--wa-teal); color:white; border:none; border-radius:10px; font-weight:bold; font-size:16px;">Login / Register</button>
 </div>
 
 <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="font-size:20px; font-weight:bold;" id="adminTrigger">NexChat Pro</div>
-        <div>🔍 ⋮</div>
+        <div style="display: flex; gap: 18px; align-items: center;">
+            <span onclick="toggleSearch()" style="cursor:pointer; font-size: 18px;">🔍</span>
+            <span onclick="toggleMenu()" style="cursor:pointer; font-size: 22px;">⋮</span>
+            
+            <div id="dropMenu">
+                <div class="menu-item" onclick="alert('Profile Coming Soon')">Profile Settings</div>
+                <div class="menu-item" style="color:red;" onclick="auth.signOut()">Logout</div>
+            </div>
+        </div>
     </div>
+
+    <div id="searchBox" style="display:none; margin: 10px 0;">
+        <input type="text" id="userSearch" placeholder="Search contacts..." oninput="filterUsers()" style="width:100%; padding:10px; border-radius:8px; border:none; outline:none; color: black;">
+    </div>
+
     <div class="tab-bar">
         <div class="tab active" onclick="switchTab('chats', this)">Chats</div>
         <div class="tab" onclick="switchTab('status', this)">Status</div>
@@ -67,11 +89,9 @@
     </div>
 </header>
 
-<div id="s-chats" class="content-area active">
-    <div id="userList"></div>
-</div>
-<div id="s-status" class="content-area" style="padding:20px;">No updates.</div>
-<div id="s-calls" class="content-area" style="padding:20px;">No calls.</div>
+<div id="s-chats" class="content-area active"><div id="userList"></div></div>
+<div id="s-status" class="content-area" style="padding:20px;">No updates available.</div>
+<div id="s-calls" class="content-area" style="padding:20px;">No recent calls.</div>
 
 <div id="chatWindow">
     <div class="chat-header">
@@ -101,13 +121,19 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const rtdb = firebase.database(); // Realtime DB for presence
+    const rtdb = firebase.database();
 
-    let me = null;
-    let targetId = null;
-    let typingTimeout;
+    let me = null, targetId = null, typingTimeout;
 
-    // 1. Auth & Presence
+    // 1. Password Visibility Toggle
+    function togglePW() {
+        const p = document.getElementById('logPass');
+        const icon = document.getElementById('togglePass');
+        if(p.type === "password") { p.type = "text"; icon.innerText = "🙈"; }
+        else { p.type = "password"; icon.innerText = "👁️"; }
+    }
+
+    // 2. Auth & Presence
     function authAction() {
         const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
         auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
@@ -117,96 +143,84 @@
         if(user) {
             me = user;
             document.getElementById('loginPage').style.display = 'none';
-            setUserOnline(user.uid);
+            rtdb.ref('/status/' + user.uid).set('online');
+            rtdb.ref('/status/' + user.uid).onDisconnect().set('offline');
+            db.collection("users").doc(user.uid).set({ email: user.email, status: 'online' }, { merge: true });
             loadUsers();
-        } else {
-            document.getElementById('loginPage').style.display = 'flex';
-        }
+        } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
-    function setUserOnline(uid) {
-        const statusRef = rtdb.ref('/status/' + uid);
-        statusRef.set('online');
-        statusRef.onDisconnect().set('offline');
-        db.collection("users").doc(uid).set({ email: me.email, status: 'online' }, { merge: true });
+    // 3. UI Interactions (Search & Menu)
+    function toggleSearch() { 
+        const s = document.getElementById('searchBox');
+        s.style.display = s.style.display === 'none' ? 'block' : 'none';
     }
 
-    // 2. Load Users with Online Status
+    function toggleMenu() {
+        const m = document.getElementById('dropMenu');
+        m.style.display = m.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function filterUsers() {
+        const q = document.getElementById('userSearch').value.toLowerCase();
+        document.querySelectorAll('.item').forEach(i => {
+            i.style.display = i.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+        });
+    }
+
+    // 4. Core Chat Functions
     function loadUsers() {
         db.collection("users").onSnapshot(snap => {
-            const list = document.getElementById('userList');
-            list.innerHTML = "";
+            const list = document.getElementById('userList'); list.innerHTML = "";
             snap.forEach(doc => {
                 if(doc.id !== me.uid) {
                     const data = doc.data();
-                    const userDiv = document.createElement('div');
-                    userDiv.className = "item";
-                    userDiv.innerHTML = `
-                        <div class="avatar-box">
-                            <div class="avatar">${data.email[0].toUpperCase()}</div>
-                            <div id="dot-${doc.id}" class="status-dot"></div>
-                        </div>
-                        <div><b>${data.email}</b></div>`;
-                    userDiv.onclick = () => openChat(doc.id, data.email);
-                    list.appendChild(userDiv);
-                    
-                    // Real-time online dot check
-                    rtdb.ref('/status/' + doc.id).on('value', s => {
-                        const dot = document.getElementById('dot-' + doc.id);
-                        if(dot) s.val() === 'online' ? dot.classList.add('online') : dot.classList.remove('online');
+                    const div = document.createElement('div');
+                    div.className = "item";
+                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${data.email[0].toUpperCase()}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div><b>${data.email}</b></div>`;
+                    div.onclick = () => openChat(doc.id, data.email);
+                    list.appendChild(div);
+                    rtdb.ref('/status/'+doc.id).on('value', s => {
+                        const dot = document.getElementById('dot-'+doc.id);
+                        if(dot) s.val()==='online' ? dot.classList.add('online') : dot.classList.remove('online');
                     });
                 }
             });
         });
     }
 
-    // 3. Typing Indicator Logic
     function handleTyping() {
-        rtdb.ref('/typing/' + me.uid).set({ chattingWith: targetId });
+        rtdb.ref('/typing/'+me.uid).set({ chattingWith: targetId });
         clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => rtdb.ref('/typing/' + me.uid).remove(), 2000);
+        typingTimeout = setTimeout(() => rtdb.ref('/typing/'+me.uid).remove(), 2000);
     }
 
     function openChat(id, email) {
-        targetId = id;
-        document.getElementById('activeUserName').innerText = email;
+        targetId = id; document.getElementById('activeUserName').innerText = email;
         document.getElementById('chatWindow').style.display = 'flex';
         loadMessages(id);
-        
-        // Listen for partner typing
-        rtdb.ref('/typing/' + id).on('value', s => {
-            const indicator = document.getElementById('typingText');
-            if(s.exists() && s.val().chattingWith === me.uid) indicator.style.display = 'block';
-            else indicator.style.display = 'none';
+        rtdb.ref('/typing/'+id).on('value', s => {
+            document.getElementById('typingText').style.display = (s.exists() && s.val().chattingWith === me.uid) ? 'block' : 'none';
         });
     }
 
-    function closeChat() { 
-        document.getElementById('chatWindow').style.display = 'none';
-        rtdb.ref('/typing/' + me.uid).remove();
-    }
+    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; rtdb.ref('/typing/'+me.uid).remove(); }
 
     function sendMsg() {
-        const val = document.getElementById('msgInput').value;
-        if(!val) return;
-        db.collection("chats").add({
-            from: me.uid, to: targetId, msg: val, time: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('msgInput').value = "";
-        rtdb.ref('/typing/' + me.uid).remove();
+        const val = document.getElementById('msgInput').value; if(!val) return;
+        db.collection("chats").add({ from: me.uid, to: targetId, msg: val, time: firebase.firestore.FieldValue.serverTimestamp() });
+        document.getElementById('msgInput').value = ""; rtdb.ref('/typing/'+me.uid).remove();
     }
 
     function loadMessages(id) {
         db.collection("chats").orderBy("time").onSnapshot(snap => {
-            const box = document.getElementById('msgBox');
-            box.innerHTML = "";
+            const box = document.getElementById('msgBox'); box.innerHTML = "";
             snap.forEach(doc => {
                 const d = doc.data();
                 if((d.from === me.uid && d.to === id) || (d.from === id && d.to === me.uid)) {
-                    const mDiv = document.createElement('div');
-                    mDiv.style = d.from === me.uid ? "align-self:flex-end; background:#dcf8c6; padding:8px; margin:5px; border-radius:10px;" : "align-self:flex-start; background:white; padding:8px; margin:5px; border-radius:10px;";
-                    mDiv.innerText = d.msg;
-                    box.appendChild(mDiv);
+                    const m = document.createElement('div');
+                    m.style = d.from === me.uid ? "align-self:flex-end; background:#dcf8c6; padding:8px; margin:5px; border-radius:10px;" : "align-self:flex-start; background:white; padding:8px; margin:5px; border-radius:10px;";
+                    m.innerText = d.msg; box.appendChild(m);
                 }
             });
             box.scrollTop = box.scrollHeight;
@@ -219,6 +233,15 @@
         document.getElementById('s-'+name).classList.add('active');
         el.classList.add('active');
     }
+
+    // 5. Admin Panel (7-Tap Hidden)
+    let taps = 0;
+    document.getElementById('adminTrigger').onclick = () => {
+        taps++; if(taps === 7) {
+            if(prompt("Admin Email:") === "vinayakglobaldream@gmail.com") alert("Admin mode enabled!");
+            taps = 0;
+        }
+    };
 </script>
 </body>
 </html>
