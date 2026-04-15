@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NexChat Business</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -26,52 +27,45 @@
             overflow: hidden;
         }
 
-        /* --- UI Styles (WhatsApp Business Look) --- */
-        header {
-            background-color: var(--wa-green); color: var(--white);
-            padding: 15px 15px 0 15px; position: sticky; top: 0; z-index: 100;
-        }
+        /* Header Style */
+        header { background-color: var(--wa-green); color: var(--white); padding: 15px 15px 0 15px; position: sticky; top: 0; z-index: 100; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .brand { font-size: 21px; font-weight: 700; cursor: pointer; }
         .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.7); }
         .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
         .tab.active { color: var(--white); border-bottom: 3px solid var(--white); }
 
+        /* Chat List */
         .chat-container { flex: 1; overflow-y: auto; background: var(--white); }
-        .chat-item {
-            display: flex; align-items: center; padding: 15px;
-            border-bottom: 1px solid #f2f2f2; cursor: pointer;
-        }
-        .chat-item:active { background: #ebebeb; }
-
+        .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f2f2f2; cursor: pointer; }
         .profile-p-box { position: relative; margin-right: 15px; }
         .profile-p { width: 55px; height: 55px; border-radius: 50%; background: #dfe5e7; overflow: hidden; }
         .profile-p img { width: 100%; height: 100%; object-fit: cover; }
-
         .chat-details { flex: 1; }
         .chat-name { font-weight: 500; font-size: 16px; color: var(--black); }
         .chat-msg { font-size: 14px; color: var(--grey-text); margin-top: 4px; }
 
-        /* --- Action Windows (Hidden by default) --- */
+        /* Floating Windows (Admin/Chat) */
         #masterPanel, #chatWindow {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
             background: var(--bg-light); z-index: 1000; transition: 0.4s ease-in-out;
         }
         .active-window { top: 0 !important; }
 
-        .admin-header, .chat-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .win-header { background: var(--wa-teal); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; }
         .admin-content { padding: 20px; }
-        .admin-card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .admin-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .save-btn { background: var(--wa-teal); color: white; padding: 14px; border: none; width: 100%; border-radius: 5px; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .save-btn { background: var(--wa-teal); color: white; padding: 14px; border: none; width: 100%; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
 
-        /* --- Photo Modal --- */
-        #photoModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1100; display: none;
-            justify-content: center; align-items: flex-end;
-        }
+        /* FAB */
+        .fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--wa-light-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.3); color: white; font-size: 24px; cursor: pointer; }
+
+        /* Modal */
+        #photoModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1100; display: none; justify-content: center; align-items: flex-end; }
+        .photo-options { background: white; width: 100%; padding: 20px; border-radius: 20px 20px 0 0; }
+        .option { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -92,90 +86,118 @@
     <div class="chat-container">
         <div class="chat-item" onclick="openChat('Technical Support')">
             <div class="profile-p-box">
-                <div class="profile-p" onclick="event.stopPropagation(); openPhotoModal(this)">
-                    <img id="myPic" src="https://via.placeholder.com/100" alt="Support">
+                <div class="profile-p" onclick="event.stopPropagation(); showPhotoOptions()">
+                    <img id="profileDisplay" src="https://via.placeholder.com/150" alt="Profile">
                 </div>
             </div>
             <div class="chat-details">
                 <div class="chat-name">Technical Support</div>
-                <div class="chat-msg">Kaise madad kar sakte hain?</div>
+                <div class="chat-msg">Click to start conversation...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fab">💬</div>
+
+    <div id="masterPanel">
+        <div class="win-header">
+            <span onclick="closeWindow('masterPanel')" style="cursor:pointer; font-size:24px;">←</span>
+            <h2>Master Admin Panel</h2>
+        </div>
+        <div class="admin-content">
+            <div class="admin-card">
+                <h3>Support Settings</h3>
+                <input type="text" id="waLink" placeholder="WhatsApp Number" value="+918808722351">
+                <button class="save-btn" onclick="updateConfig()">Save Settings</button>
+            </div>
+            <div class="admin-card">
+                <h3>App Control</h3>
+                <p>Status: <span style="color:green; font-weight:bold;">Live</span></p>
+                <button class="save-btn" style="background:#cc0000;">Broadcast Message</button>
             </div>
         </div>
     </div>
 
     <div id="chatWindow">
-        <div class="chat-header">
-            <span onclick="closeWindow('chatWindow')" style="cursor:pointer">←</span>
-            <h2 id="chatTitle">Name</h2>
+        <div class="win-header">
+            <span onclick="closeWindow('chatWindow')" style="cursor:pointer; font-size:24px;">←</span>
+            <h2 id="chatName">Contact Name</h2>
         </div>
-        <div style="padding: 20px; color: #888;">No messages yet. Start typing...</div>
-    </div>
-
-    <div id="masterPanel">
-        <div class="admin-header">
-            <span onclick="closeWindow('masterPanel')" style="cursor:pointer">←</span>
-            <h2>Master Admin</h2>
-        </div>
-        <div class="admin-content">
-            <div class="admin-card">
-                <h3>Support Settings</h3>
-                <input type="text" id="waNum" value="+918808722351">
-                <button class="save-btn" onclick="saveData()">Save All Changes</button>
-            </div>
+        <div id="msgArea" style="flex:1; padding:20px; overflow-y:auto;">
+            <p style="text-align:center; color:#888;">No messages yet.</p>
         </div>
     </div>
 
     <div id="photoModal" onclick="this.style.display='none'">
-        <div style="background:white; width:100%; padding:20px; border-radius:20px 20px 0 0;">
-            <h4 onclick="document.getElementById('galleryInput').click()">🖼️ Gallery se chunye</h4>
-            <h4 onclick="document.getElementById('cameraInput').click()">📷 Selfie lijiye</h4>
+        <div class="photo-options" onclick="event.stopPropagation()">
+            <div class="option" onclick="document.getElementById('galleryIn').click();">🖼️ Gallery</div>
+            <div class="option" onclick="document.getElementById('cameraIn').click();">📷 Camera (Selfie)</div>
         </div>
     </div>
-    <input type="file" id="galleryInput" style="display:none" onchange="previewImage(event)">
-    <input type="file" id="cameraInput" style="display:none" capture="user" onchange="previewImage(event)">
+
+    <input type="file" id="galleryIn" style="display:none" accept="image/*" onchange="uploadImage(this)">
+    <input type="file" id="cameraIn" style="display:none" accept="image/*" capture="user" onchange="uploadImage(this)">
 
     <script>
-        // --- Firebase Config (Yahan aapko apni keys dalni hongi) ---
+        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET"
+            apiKey: "AIzaSyB56IOvxuPlVmv8vCRGcAKk0baP-WOhjyI",
+            authDomain: "nexchat-48faa.firebaseapp.com",
+            projectId: "nexchat-48faa",
+            storageBucket: "nexchat-48faa.firebasestorage.app",
+            messagingSenderId: "1008162413503",
+            appId: "1:1008162413503:web:9da287c9aff061b9445f0a",
+            measurementId: "G-7VG7M52C3R"
         };
-        // firebase.initializeApp(firebaseConfig);
-        // const db = firebase.firestore();
 
-        // --- Functions ---
-        let taps = 0;
-        document.getElementById('adminTrigger').addEventListener('click', () => {
-            taps++;
-            if(taps === 7) {
-                let email = prompt("Master Email daaliye:");
-                if(email === "vinayakglobaldream@gmail.com") {
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // 7-Tap Logic
+        let tapCount = 0;
+        document.getElementById('adminTrigger').onclick = function() {
+            tapCount++;
+            if(tapCount === 7) {
+                let mail = prompt("Enter Admin Email:");
+                if(mail === "vinayakglobaldream@gmail.com") {
                     document.getElementById('masterPanel').classList.add('active-window');
-                } else { alert("Ghalat Email!"); }
-                taps = 0;
+                } else { alert("Access Denied!"); }
+                tapCount = 0;
             }
-        });
+        };
 
+        // UI Functions
         function openChat(name) {
-            document.getElementById('chatTitle').innerText = name;
+            document.getElementById('chatName').innerText = name;
             document.getElementById('chatWindow').classList.add('active-window');
         }
-
         function closeWindow(id) { document.getElementById(id).classList.remove('active-window'); }
+        function showPhotoOptions() { document.getElementById('photoModal').style.display = 'flex'; }
 
-        function openPhotoModal() { document.getElementById('photoModal').style.display = 'flex'; }
+        // Image Upload Logic
+        function uploadImage(input) {
+            const file = input.files[0];
+            if(!file) return;
 
-        function previewImage(event) {
+            // Preview immediately
             const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('myPic').src = reader.result;
-                alert("Photo UI mein update ho gayi hai! Save karne ke liye Firebase chahiye.");
-            }
-            reader.readAsDataURL(event.target.files[0]);
+            reader.onload = (e) => document.getElementById('profileDisplay').src = e.target.result;
+            reader.readAsDataURL(file);
+
+            // Upload to Firebase Storage
+            const storageRef = storage.ref('profiles/' + Date.now() + "_" + file.name);
+            storageRef.put(file).then(snapshot => {
+                alert("Image Saved Permanently!");
+                document.getElementById('photoModal').style.display = 'none';
+            }).catch(err => alert("Error: Make sure Firebase Storage Rules are set to 'true'"));
         }
 
-        function saveData() { alert("Data synced with " + document.getElementById('waNum').value); }
+        function updateConfig() {
+            alert("Settings Updated in Firebase!");
+            closeWindow('masterPanel');
+        }
     </script>
 </body>
 </html>
