@@ -9,42 +9,33 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <style>
         :root { --wa-green: #075E54; --wa-teal: #128C7E; --online: #25D366; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        
         header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; }
         .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 10px; }
         .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
         .tab.active { color: white; border-bottom: 4px solid white; }
-
         .content-area { flex: 1; overflow-y: auto; background: white; display: none; }
         .content-area.active { display: block; }
-
         .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.3s ease; overflow-y: auto; }
         .window.active { top: 0; }
-
         .item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .avatar-box { position: relative; margin-right: 15px; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #075E54; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #075E54; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #ccc; }
         .status-dot.online { background: var(--online); }
-
         #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:170px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; overflow:hidden; }
         .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
-
         #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 1500; display: none; flex-direction: column; }
         .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 12px; }
-        
         .msg-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; }
         .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
         .input-bar input { flex: 1; padding: 12px; border-radius: 25px; border: none; outline: none; }
-        
         #fab { position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--wa-green); color:white; border:none; font-size:24px; box-shadow:0 4px 10px rgba(0,0,0,0.3); z-index:1000; }
-
         .edit-group { margin-bottom: 20px; text-align: left; padding: 0 20px; }
         .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
         .edit-group input, .edit-group select { width: 100%; padding: 10px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; background: transparent; }
@@ -74,9 +65,7 @@
             </div>
         </div>
     </div>
-    <div id="searchBox" style="display:none; padding:10px 0;">
-        <input type="text" id="userSearch" placeholder="Search chats..." oninput="filterList('.item')" style="width:100%; padding:10px; border-radius:8px; border:none; outline:none;">
-    </div>
+    <div id="searchBox" style="display:none; padding:10px 0;"><input type="text" id="userSearch" placeholder="Search chats..." oninput="filterList('.item')" style="width:100%; padding:10px; border-radius:8px; border:none; outline:none;"></div>
     <div class="tab-bar">
         <div class="tab active" onclick="switchTab('chats', this)">Chats</div>
         <div class="tab" onclick="switchTab('status', this)">Status</div>
@@ -95,9 +84,7 @@
         <span onclick="document.getElementById('contactPage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
         <span>Select Contact</span>
     </div>
-    <div style="background:#f0f0f0; padding:10px;">
-        <input type="text" id="contactSearch" placeholder="Search contacts..." oninput="filterList('#registeredUsers .item', 'contactSearch')" style="width:100%; padding:12px; border-radius:25px; border:none; outline:none;">
-    </div>
+    <div style="background:#f0f0f0; padding:10px;"><input type="text" id="contactSearch" placeholder="Search contacts..." oninput="filterList('#registeredUsers .item', 'contactSearch')" style="width:100%; padding:12px; border-radius:25px; border:none; outline:none;"></div>
     <div id="registeredUsers"></div>
 </div>
 
@@ -107,14 +94,14 @@
         <span>Edit Profile</span>
     </div>
     <div style="text-align: center; padding: 20px;">
-        <div id="profPic" style="width:100px; height:100px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto;">V</div>
-        <p style="color:var(--wa-teal); font-weight:bold;">Profile Details</p>
+        <div id="profPic" onclick="triggerUpload()" style="width:110px; height:110px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto; cursor:pointer; overflow:hidden; border: 3px solid #eee;">V</div>
+        <p style="color:var(--wa-teal); font-weight:bold; cursor:pointer;" onclick="triggerUpload()">Change Photo 📷</p>
     </div>
     <div class="edit-group"><label>Full Name</label><input type="text" id="editName"></div>
     <div class="edit-group"><label>Nick Name</label><input type="text" id="editNick"></div>
     <div class="edit-group"><label>Gender</label><select id="editGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
     <div class="edit-group"><label>Date of Birth</label><input type="date" id="editDOB"></div>
-    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 20px 5%; font-weight:bold;">Save Profile ✅</button>
+    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 20px 5%; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Save Profile ✅</button>
 </div>
 
 <div id="chatWindow">
@@ -135,12 +122,12 @@
         authDomain: "nexchat-48faa.firebaseapp.com",
         projectId: "nexchat-48faa",
         databaseURL: "https://nexchat-48faa-default-rtdb.firebaseio.com",
-        storageBucket: "nexchat-48faa.firebasestorage.app",
+        storageBucket: "nexchat-48faa.appspot.com",
         messagingSenderId: "1008162413503",
         appId: "1:1008162413503:web:9da287c9aff061b9445f0a"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(), db = firebase.firestore(), rtdb = firebase.database();
+    const auth = firebase.auth(), db = firebase.firestore(), rtdb = firebase.database(), storage = firebase.storage();
     let me = null, targetId = null, typingTimeout;
 
     function togglePW() {
@@ -164,46 +151,53 @@
         } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
-    function toggleSearch() { const s = document.getElementById('searchBox'); s.style.display = s.style.display === 'none' ? 'block' : 'none'; }
-    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
-    
-    function filterList(selector, inputId = 'userSearch') {
-        const q = document.getElementById(inputId).value.toLowerCase();
-        document.querySelectorAll(selector).forEach(i => i.style.display = i.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
+    // PHOTO UPLOAD LOGIC
+    function triggerUpload() {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*';
+        input.onchange = e => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const ref = storage.ref('profiles/' + me.uid);
+            ref.put(file).then(() => {
+                ref.getDownloadURL().then(url => {
+                    db.collection("users").doc(me.uid).update({ photoURL: url });
+                    document.getElementById('profPic').innerHTML = `<img src="${url}">`;
+                    alert("Photo Updated!");
+                });
+            }).catch(err => alert("Storage Error: Enable Storage in Firebase Console!"));
+        };
+        input.click();
+    }
+
+    function saveProfile() {
+        const data = {
+            name: document.getElementById('editName').value,
+            nickname: document.getElementById('editNick').value,
+            gender: document.getElementById('editGender').value,
+            dob: document.getElementById('editDOB').value
+        };
+        db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => {
+            alert("Profile Updated Successfully! ✅");
+            document.getElementById('profilePage').classList.remove('active');
+            loadUsers();
+        }).catch(err => alert("Error: " + err.message));
     }
 
     function openProfile() {
         db.collection("users").doc(me.uid).get().then(doc => {
-            const d = doc.data();
-            document.getElementById('editName').value = d.name || "";
-            document.getElementById('editNick').value = d.nickname || "";
-            document.getElementById('editGender').value = d.gender || "Male";
-            document.getElementById('editDOB').value = d.dob || "";
-            document.getElementById('profPic').innerText = (d.name || me.email)[0].toUpperCase();
+            if(doc.exists) {
+                const d = doc.data();
+                document.getElementById('editName').value = d.name || "";
+                document.getElementById('editNick').value = d.nickname || "";
+                document.getElementById('editGender').value = d.gender || "Male";
+                document.getElementById('editDOB').value = d.dob || "";
+                if(d.photoURL) document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}">`;
+                else document.getElementById('profPic').innerText = (d.name || me.email)[0].toUpperCase();
+            }
         });
         document.getElementById('profilePage').classList.add('active');
         toggleMenu();
-    }
-
-    function saveProfile() {
-        const data = { name: document.getElementById('editName').value, nickname: document.getElementById('editNick').value, gender: document.getElementById('editGender').value, dob: document.getElementById('editDOB').value };
-        db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => { alert("Saved!"); document.getElementById('profilePage').classList.remove('active'); });
-    }
-
-    function openContacts() {
-        document.getElementById('contactPage').classList.add('active');
-        const list = document.getElementById('registeredUsers'); list.innerHTML = "";
-        db.collection("users").get().then(snap => {
-            snap.forEach(doc => {
-                if(doc.id !== me.uid) {
-                    const d = doc.data();
-                    const div = document.createElement('div'); div.className = "item";
-                    div.innerHTML = `<div class="avatar">${(d.name || d.email)[0].toUpperCase()}</div><div style="margin-left:15px;"><b>${d.name || d.email}</b><br><small>${d.nickname || 'NexChat User'}</small></div>`;
-                    div.onclick = () => { openChat(doc.id, d.name || d.email); document.getElementById('contactPage').classList.remove('active'); };
-                    list.appendChild(div);
-                }
-            });
-        });
     }
 
     function loadUsers() {
@@ -213,7 +207,8 @@
                 if(doc.id !== me.uid) {
                     const d = doc.data();
                     const div = document.createElement('div'); div.className = "item";
-                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${(d.name || d.email)[0].toUpperCase()}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div><b>${d.name || d.email}</b></div>`;
+                    const avatarContent = d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase();
+                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${avatarContent}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div style="margin-left:15px;"><b>${d.name || d.email}</b></div>`;
                     div.onclick = () => openChat(doc.id, d.name || d.email);
                     list.appendChild(div);
                     rtdb.ref('/status/'+doc.id).on('value', s => {
@@ -225,6 +220,29 @@
         });
     }
 
+    // OTHER UTILITIES
+    function openContacts() {
+        document.getElementById('contactPage').classList.add('active');
+        const list = document.getElementById('registeredUsers'); list.innerHTML = "";
+        db.collection("users").get().then(snap => {
+            snap.forEach(doc => {
+                if(doc.id !== me.uid) {
+                    const d = doc.data();
+                    const div = document.createElement('div'); div.className = "item";
+                    div.innerHTML = `<div class="avatar">${d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase()}</div><div style="margin-left:15px;"><b>${d.name || d.email}</b><br><small>${d.nickname || 'NexChat User'}</small></div>`;
+                    div.onclick = () => { openChat(doc.id, d.name || d.email); document.getElementById('contactPage').classList.remove('active'); };
+                    list.appendChild(div);
+                }
+            });
+        });
+    }
+
+    function toggleSearch() { const s = document.getElementById('searchBox'); s.style.display = s.style.display === 'none' ? 'block' : 'none'; }
+    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
+    function filterList(selector, inputId = 'userSearch') {
+        const q = document.getElementById(inputId).value.toLowerCase();
+        document.querySelectorAll(selector).forEach(i => i.style.display = i.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
+    }
     function openChat(id, name) {
         targetId = id; document.getElementById('activeUserName').innerText = name;
         document.getElementById('chatWindow').style.display = 'flex';
@@ -233,19 +251,16 @@
             document.getElementById('typingText').style.display = (s.exists() && s.val().chattingWith === me.uid) ? 'block' : 'none';
         });
     }
-
     function handleTyping() {
         rtdb.ref('/typing/'+me.uid).set({ chattingWith: targetId });
         clearTimeout(typingTimeout);
         typingTimeout = setTimeout(() => rtdb.ref('/typing/'+me.uid).remove(), 2000);
     }
-
     function sendMsg() {
         const val = document.getElementById('msgInput').value; if(!val) return;
         db.collection("chats").add({ from: me.uid, to: targetId, msg: val, time: firebase.firestore.FieldValue.serverTimestamp() });
         document.getElementById('msgInput').value = ""; rtdb.ref('/typing/'+me.uid).remove();
     }
-
     function loadMessages(id) {
         db.collection("chats").orderBy("time").onSnapshot(snap => {
             const box = document.getElementById('msgBox'); box.innerHTML = "";
@@ -260,7 +275,6 @@
             box.scrollTop = box.scrollHeight;
         });
     }
-
     function closeChat() { document.getElementById('chatWindow').style.display = 'none'; rtdb.ref('/typing/'+me.uid).remove(); }
     function switchTab(name, el) {
         document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
