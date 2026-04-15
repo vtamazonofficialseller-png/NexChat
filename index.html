@@ -14,69 +14,83 @@
         :root { --wa-green: #075E54; --wa-teal: #128C7E; --online: #25D366; --bg-gray: #e5ddd5; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
+        /* UI Components */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; }
+        
+        /* Search Bar */
+        .search-container { background: var(--wa-green); padding: 5px 15px 10px; }
+        .search-bar { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; }
+        .search-bar input { background: transparent; border: none; color: white; outline: none; width: 100%; font-size: 15px; }
+        .search-bar input::placeholder { color: rgba(255,255,255,0.7); }
+
         .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 10px; }
-        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; transition: 0.3s; }
+        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
         .tab.active { color: white; border-bottom: 4px solid white; }
         
         .content-area { flex: 1; overflow-y: auto; background: white; display: none; }
         .content-area.active { display: block; }
         
-        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow-y: auto; }
+        /* Profile & Window */
+        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.3s ease-out; overflow-y: auto; }
         .window.active { top: 0; }
         
+        /* User Items & Verification Dots */
         .item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden; position: relative; font-size: 20px; }
+        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; position: relative; font-size: 20px; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
+        /* Pink/Blue Verification Dots */
+        .v-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; display: inline-block; margin-left: 5px; vertical-align: middle; }
+        .dot-pink { background: #FF69B4; }
+        .dot-blue { background: #1E90FF; }
+
         .status-dot { position: absolute; bottom: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #bbb; }
         .status-dot.online { background: var(--online); }
         
-        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:200px; box-shadow:0 8px 24px rgba(0,0,0,0.2); border-radius:8px; z-index:5000; overflow:hidden; }
-        .menu-item { padding:15px; font-size:15px; cursor:pointer; border-bottom:1px solid #f9f9f9; }
+        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; }
+        .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
 
+        .edit-group { margin-bottom: 15px; padding: 0 25px; text-align: left; }
+        .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .edit-group input, .edit-group select { width: 100%; padding: 8px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; }
+
+        /* Chat Window */
         #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gray); z-index: 1500; display: none; flex-direction: column; }
-        .chat-header { background: var(--wa-teal); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; }
+        .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 10px; }
         .msg-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
-        
-        .msg { max-width: 75%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; font-size: 15px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg { max-width: 75%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; font-size: 15px; position: relative; }
         .msg.sent { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
         .msg.received { align-self: flex-start; background: white; border-top-left-radius: 0; }
-        .msg-time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
 
         .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; align-items: center; }
-        .input-bar input { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; font-size: 16px; }
-        
-        #fab { position:fixed; bottom:25px; right:25px; width:60px; height:60px; border-radius:50%; background:var(--wa-green); color:white; border:none; font-size:24px; box-shadow:0 4px 15px rgba(0,0,0,0.4); z-index:1000; }
-        
-        .edit-group { margin-bottom: 20px; padding: 0 25px; text-align: left; }
-        .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 12px; text-transform: uppercase; }
-        .edit-group input, .edit-group select { width: 100%; padding: 10px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; }
+        .input-bar input { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; }
     </style>
 </head>
 <body>
 
 <div id="loginPage" class="overlay">
-    <div style="background:var(--wa-green); width:70px; height:70px; border-radius:18px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
-        <span style="color:white; font-size:40px; font-weight:bold;">N</span>
+    <div style="background:var(--wa-green); width:60px; height:60px; border-radius:15px; display:flex; align-items:center; justify-content:center; margin-bottom:15px;">
+        <span style="color:white; font-size:30px; font-weight:bold;">N</span>
     </div>
-    <h2 style="color:var(--wa-green); margin-bottom:5px;">NexChat Business</h2>
-    <p style="color:gray; margin-bottom:20px;">Fast, Secure & Professional</p>
-    <input type="email" id="logEmail" placeholder="Email Address" style="width:85%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
-    <input type="password" id="logPass" placeholder="Password" style="width:85%; padding:14px; border:1px solid #ddd; border-radius:10px;">
-    <button onclick="authAction()" style="width:88%; padding:15px; background:var(--wa-teal); color:white; border:none; border-radius:10px; font-weight:bold; margin-top:15px; font-size:16px;">Get Started</button>
+    <h2 style="color:var(--wa-green)">NexChat Business</h2>
+    <input type="email" id="logEmail" placeholder="Email Address" style="width:80%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;">
+    <input type="password" id="logPass" placeholder="Password" style="width:80%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;">
+    <button onclick="authAction()" style="width:85%; padding:14px; background:var(--wa-teal); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:10px;">Get Started</button>
 </div>
 
 <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="font-size:22px; font-weight:bold;">NexChat Pro</div>
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <span onclick="toggleMenu()" style="cursor:pointer; font-size: 24px;">⋮</span>
-            <div id="dropMenu">
-                <div class="menu-item" onclick="openProfile()">My Profile</div>
-                <div class="menu-item" style="color:red;" onclick="auth.signOut()">Logout</div>
-            </div>
+        <div style="font-size:20px; font-weight:bold;">NexChat Pro</div>
+        <span onclick="toggleMenu()" style="cursor:pointer; font-size: 24px;">⋮</span>
+        <div id="dropMenu">
+            <div class="menu-item" onclick="openProfile()">My Profile</div>
+            <div class="menu-item" style="color:red;" onclick="auth.signOut()">Logout</div>
+        </div>
+    </div>
+    <div class="search-container">
+        <div class="search-bar">
+            <input type="text" placeholder="Search friends or business..." onkeyup="filterUsers(this.value)">
         </div>
     </div>
     <div class="tab-bar">
@@ -87,43 +101,41 @@
 </header>
 
 <div id="s-chats" class="content-area active"><div id="userList"></div></div>
-<div id="s-status" class="content-area" style="text-align:center; padding-top:50px; color:gray;">Status updates will appear here.</div>
-<div id="s-calls" class="content-area" style="text-align:center; padding-top:50px; color:gray;">No recent calls.</div>
-
-<button id="fab" onclick="alert('Click a user to start chatting!')">💬</button>
+<div id="s-status" class="content-area" style="padding:20px; color:gray; text-align:center;">Updates will appear here.</div>
+<div id="s-calls" class="content-area" style="padding:20px; color:gray; text-align:center;">No recent calls.</div>
 
 <div id="profilePage" class="window">
     <div class="chat-header">
         <span onclick="document.getElementById('profilePage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
         <span>Profile Settings</span>
     </div>
-    <div style="text-align: center; padding: 30px 20px;">
-        <div id="profPic" onclick="triggerUpload()" style="width:120px; height:120px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:45px; margin: 0 auto; cursor:pointer; overflow:hidden; border: 4px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">V</div>
-        <p style="color:var(--wa-teal); font-weight:bold; margin-top:15px; cursor:pointer;" onclick="triggerUpload()">CHANGE PROFILE PHOTO 📷</p>
+    <div style="text-align: center; padding: 25px;">
+        <div id="profPic" onclick="triggerUpload()" style="width:110px; height:110px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto; overflow:hidden; border: 4px solid #f0f0f0;">V</div>
+        <p style="color:var(--wa-teal); font-weight:bold; margin-top:10px; cursor:pointer;" onclick="triggerUpload()">📷 UPLOAD PHOTO</p>
     </div>
     
     <div class="edit-group"><label>Full Name</label><input type="text" id="editName" placeholder="Vinayak Tiwari"></div>
-    <div class="edit-group"><label>App Language</label><select id="appLang"><option value="en">English</option></select></div>
-    <div class="edit-group"><label>Country</label>
-        <select id="editCountry">
-            <option value="India">India</option>
-            <option value="USA">USA</option>
+    <div class="edit-group"><label>Gender</label>
+        <select id="editGender">
+            <option value="Male">Male (Blue Dot)</option>
+            <option value="Female">Female (Pink Dot)</option>
         </select>
     </div>
+    <div class="edit-group"><label>Date of Birth</label><input type="date" id="editDOB"></div>
+    <div class="edit-group"><label>Country</label><input type="text" id="editCountry" placeholder="India"></div>
     
-    <button onclick="saveProfile()" style="width:90%; padding:16px; background:var(--wa-green); color:white; border:none; border-radius:12px; margin: 20px 5%; font-weight:bold; font-size:16px;">UPDATE PROFILE ✅</button>
+    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 10px 5%; font-weight:bold;">UPDATE PROFILE ✅</button>
 </div>
 
 <div id="chatWindow">
     <div class="chat-header">
         <span onclick="closeChat()" style="font-size:24px; cursor:pointer;">←</span>
-        <div id="targetAvatar" style="width:35px; height:35px; border-radius:50%; background:white; overflow:hidden; display: flex; align-items: center; justify-content: center;"></div>
-        <div id="activeUserName" style="font-weight:bold; flex:1;">User</div>
+        <div id="activeUserName" style="font-weight:bold;">User</div>
     </div>
     <div class="msg-container" id="msgBox"></div>
     <div class="input-bar">
-        <input type="text" id="msgInput" placeholder="Type a message...">
-        <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; border-radius:50%; width:48px; height:48px; font-size:20px;">➤</button>
+        <input type="text" id="msgInput" placeholder="Message...">
+        <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; border-radius:50%; width:45px; height:45px;">➤</button>
     </div>
 </div>
 
@@ -157,27 +169,21 @@
         } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
-    // FIXED: Modern Gallery Upload with proper canvas scaling
+    // PHOTO FIX: Improved compression for faster Firestore sync
     function triggerUpload() {
         const input = document.createElement('input');
         input.type = 'file'; input.accept = 'image/*';
         input.onchange = e => {
             const file = e.target.files[0];
-            if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const MAX_SIZE = 300;
-                    let width = img.width, height = img.height;
-                    if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } }
-                    else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                    canvas.width = width; canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    base64Photo = canvas.toDataURL('image/jpeg', 0.8);
-                    document.getElementById('profPic').innerHTML = `<img src="${base64Photo}" style="width:100%;height:100%;object-fit:cover;">`;
+                    canvas.width = 250; canvas.height = 250; 
+                    canvas.getContext('2d').drawImage(img, 0, 0, 250, 250);
+                    base64Photo = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('profPic').innerHTML = `<img src="${base64Photo}" style="width:100%;height:100%;border-radius:50%;">`;
                 };
                 img.src = event.target.result;
             };
@@ -189,9 +195,11 @@
     function saveProfile() {
         const data = {
             name: document.getElementById('editName').value,
+            gender: document.getElementById('editGender').value,
+            dob: document.getElementById('editDOB').value,
             country: document.getElementById('editCountry').value,
             photoURL: base64Photo,
-            email: me.email
+            uid: me.uid
         };
         db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => {
             alert("Profile Synced! ✅");
@@ -204,10 +212,12 @@
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('editName').value = d.name || "";
-                document.getElementById('editCountry').value = d.country || "India";
+                document.getElementById('editGender').value = d.gender || "Male";
+                document.getElementById('editDOB').value = d.dob || "";
+                document.getElementById('editCountry').value = d.country || "";
                 if(d.photoURL) {
                     base64Photo = d.photoURL;
-                    document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
+                    document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;border-radius:50%;">`;
                 }
             }
         });
@@ -222,30 +232,45 @@
                 if(doc.id !== me.uid) {
                     const d = doc.data();
                     const div = document.createElement('div'); div.className = "item";
-                    const avatarContent = d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase();
+                    const avatar = d.photoURL ? `<img src="${d.photoURL}">` : (d.name || 'U')[0].toUpperCase();
+                    const dotClass = d.gender === 'Female' ? 'dot-pink' : 'dot-blue';
+                    
                     div.innerHTML = `
-                        <div class="avatar">${avatarContent}<div id="dot-${doc.id}" class="status-dot"></div></div>
+                        <div class="avatar">${avatar}<div id="dot-${doc.id}" class="status-dot"></div></div>
                         <div style="margin-left:15px; flex:1;">
-                            <b>${d.name || d.email.split('@')[0]}</b><br>
+                            <div style="display:flex; align-items:center;">
+                                <b>${d.name || d.email.split('@')[0]}</b>
+                                <span class="v-dot ${dotClass}"></span>
+                            </div>
                             <small style="color:gray;">Tap to chat...</small>
                         </div>`;
-                    div.onclick = () => openChat(doc.id, d.name || d.email.split('@')[0], d.photoURL);
+                    div.onclick = () => openChat(doc.id, d.name || d.email.split('@')[0]);
                     list.appendChild(div);
                     rtdb.ref('/status/'+doc.id).on('value', s => {
-                        const dot = document.getElementById('dot-'+doc.id);
-                        if(dot) s.val()==='online' ? dot.classList.add('online') : dot.classList.remove('online');
+                        const ds = document.getElementById('dot-'+doc.id);
+                        if(ds) s.val()==='online' ? ds.classList.add('online') : ds.classList.remove('online');
                     });
                 }
             });
         });
     }
 
-    function openChat(id, name, photo) { 
-        targetId = id; 
-        document.getElementById('activeUserName').innerText = name; 
-        document.getElementById('targetAvatar').innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : name[0].toUpperCase();
-        document.getElementById('chatWindow').style.display = 'flex'; 
-        loadMessages(id); 
+    function filterUsers(val) {
+        const items = document.querySelectorAll('.item');
+        items.forEach(item => {
+            if(item.innerText.toLowerCase().includes(val.toLowerCase())) item.style.display = "flex";
+            else item.style.display = "none";
+        });
+    }
+
+    function openChat(id, name) { targetId = id; document.getElementById('activeUserName').innerText = name; document.getElementById('chatWindow').style.display = 'flex'; loadMessages(id); }
+    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; }
+    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
+    function switchTab(n, el) {
+        document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
+        document.getElementById('s-'+n).classList.add('active');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
     }
 
     function sendMsg() {
@@ -262,22 +287,12 @@
                 if((d.from === me.uid && d.to === id) || (d.from === id && d.to === me.uid)) {
                     const m = document.createElement('div');
                     m.className = d.from === me.uid ? "msg sent" : "msg received";
-                    const time = d.time ? new Date(d.time.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "...";
-                    m.innerHTML = `${d.msg} <div class="msg-time">${time}</div>`; 
+                    m.innerText = d.msg;
                     box.appendChild(m);
                 }
             });
             box.scrollTop = box.scrollHeight;
         });
-    }
-
-    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; }
-    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
-    function switchTab(name, el) {
-        document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
-        document.getElementById('s-'+name).classList.add('active');
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
     }
 </script>
 </body>
