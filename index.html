@@ -14,11 +14,8 @@
         :root { --wa-green: #075E54; --wa-teal: #128C7E; --online: #25D366; --bg-gray: #e5ddd5; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* UI Components */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        /* Header & Search */
         header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; }
-        
-        /* Search Bar */
         .search-container { background: var(--wa-green); padding: 5px 15px 10px; }
         .search-bar { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; }
         .search-bar input { background: transparent; border: none; color: white; outline: none; width: 100%; font-size: 15px; }
@@ -28,69 +25,60 @@
         .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
         .tab.active { color: white; border-bottom: 4px solid white; }
         
+        /* Content & Windows */
         .content-area { flex: 1; overflow-y: auto; background: white; display: none; }
         .content-area.active { display: block; }
-        
-        /* Profile & Window */
         .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.3s ease-out; overflow-y: auto; }
         .window.active { top: 0; }
         
-        /* User Items & Verification Dots */
+        /* User List & Verification */
         .item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; position: relative; font-size: 20px; }
+        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: white; overflow: hidden; position: relative; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Pink/Blue Verification Dots */
-        .v-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; display: inline-block; margin-left: 5px; vertical-align: middle; }
+        /* Blue/Pink Verification Dots */
+        .v-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; display: inline-block; margin-left: 6px; }
         .dot-pink { background: #FF69B4; }
         .dot-blue { background: #1E90FF; }
-
         .status-dot { position: absolute; bottom: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #bbb; }
         .status-dot.online { background: var(--online); }
-        
-        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; }
-        .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
 
+        /* Profile Form */
         .edit-group { margin-bottom: 15px; padding: 0 25px; text-align: left; }
         .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 11px; text-transform: uppercase; }
-        .edit-group input, .edit-group select { width: 100%; padding: 8px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; }
+        .edit-group input, .edit-group select { width: 100%; padding: 10px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; }
 
-        /* Chat Window */
+        /* Login & Chat Styles */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gray); z-index: 1500; display: none; flex-direction: column; }
         .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 10px; }
         .msg-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
-        .msg { max-width: 75%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; font-size: 15px; position: relative; }
-        .msg.sent { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
-        .msg.received { align-self: flex-start; background: white; border-top-left-radius: 0; }
-
-        .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; align-items: center; }
-        .input-bar input { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; }
+        .msg { max-width: 75%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; }
+        .msg.sent { align-self: flex-end; background: #dcf8c6; }
+        .msg.received { align-self: flex-start; background: white; }
     </style>
 </head>
 <body>
 
 <div id="loginPage" class="overlay">
-    <div style="background:var(--wa-green); width:60px; height:60px; border-radius:15px; display:flex; align-items:center; justify-content:center; margin-bottom:15px;">
-        <span style="color:white; font-size:30px; font-weight:bold;">N</span>
-    </div>
     <h2 style="color:var(--wa-green)">NexChat Business</h2>
-    <input type="email" id="logEmail" placeholder="Email Address" style="width:80%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;">
+    <input type="email" id="logEmail" placeholder="Email" style="width:80%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;">
     <input type="password" id="logPass" placeholder="Password" style="width:80%; padding:12px; margin:5px; border-radius:8px; border:1px solid #ddd;">
-    <button onclick="authAction()" style="width:85%; padding:14px; background:var(--wa-teal); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:10px;">Get Started</button>
+    <button onclick="authAction()" style="width:85%; padding:14px; background:var(--wa-teal); color:white; border:none; border-radius:8px; font-weight:bold; margin-top:10px;">Login / Register</button>
 </div>
 
 <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="font-size:20px; font-weight:bold;">NexChat Pro</div>
         <span onclick="toggleMenu()" style="cursor:pointer; font-size: 24px;">⋮</span>
-        <div id="dropMenu">
-            <div class="menu-item" onclick="openProfile()">My Profile</div>
-            <div class="menu-item" style="color:red;" onclick="auth.signOut()">Logout</div>
+        <div id="dropMenu" style="display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000;">
+            <div class="menu-item" style="padding:12px; cursor:pointer;" onclick="openProfile()">My Profile</div>
+            <div class="menu-item" style="padding:12px; cursor:pointer; color:red;" onclick="auth.signOut()">Logout</div>
         </div>
     </div>
     <div class="search-container">
         <div class="search-bar">
-            <input type="text" placeholder="Search friends or business..." onkeyup="filterUsers(this.value)">
+            <input type="text" placeholder="Search chats..." onkeyup="filterUsers(this.value)">
         </div>
     </div>
     <div class="tab-bar">
@@ -101,30 +89,27 @@
 </header>
 
 <div id="s-chats" class="content-area active"><div id="userList"></div></div>
-<div id="s-status" class="content-area" style="padding:20px; color:gray; text-align:center;">Updates will appear here.</div>
-<div id="s-calls" class="content-area" style="padding:20px; color:gray; text-align:center;">No recent calls.</div>
+<div id="s-status" class="content-area" style="padding:20px; text-align:center; color:gray;">Status updates here.</div>
+<div id="s-calls" class="content-area" style="padding:20px; text-align:center; color:gray;">No calls yet.</div>
 
 <div id="profilePage" class="window">
     <div class="chat-header">
         <span onclick="document.getElementById('profilePage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
-        <span>Profile Settings</span>
+        <span>Edit Profile</span>
     </div>
     <div style="text-align: center; padding: 25px;">
         <div id="profPic" onclick="triggerUpload()" style="width:110px; height:110px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto; overflow:hidden; border: 4px solid #f0f0f0;">V</div>
-        <p style="color:var(--wa-teal); font-weight:bold; margin-top:10px; cursor:pointer;" onclick="triggerUpload()">📷 UPLOAD PHOTO</p>
+        <p style="color:var(--wa-teal); font-weight:bold; margin-top:10px; cursor:pointer;" onclick="triggerUpload()">📷 CHANGE PHOTO</p>
     </div>
     
-    <div class="edit-group"><label>Full Name</label><input type="text" id="editName" placeholder="Vinayak Tiwari"></div>
+    <div class="edit-group"><label>Full Name</label><input type="text" id="editName"></div>
+    <div class="edit-group"><label>Nick Name</label><input type="text" id="editNick"></div>
     <div class="edit-group"><label>Gender</label>
-        <select id="editGender">
-            <option value="Male">Male (Blue Dot)</option>
-            <option value="Female">Female (Pink Dot)</option>
-        </select>
+        <select id="editGender"><option value="Male">Male</option><option value="Female">Female</option></select>
     </div>
     <div class="edit-group"><label>Date of Birth</label><input type="date" id="editDOB"></div>
-    <div class="edit-group"><label>Country</label><input type="text" id="editCountry" placeholder="India"></div>
     
-    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 10px 5%; font-weight:bold;">UPDATE PROFILE ✅</button>
+    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 10px 5%; font-weight:bold;">SAVE PROFILE ✅</button>
 </div>
 
 <div id="chatWindow">
@@ -134,7 +119,7 @@
     </div>
     <div class="msg-container" id="msgBox"></div>
     <div class="input-bar">
-        <input type="text" id="msgInput" placeholder="Message...">
+        <input type="text" id="msgInput" placeholder="Type message...">
         <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; border-radius:50%; width:45px; height:45px;">➤</button>
     </div>
 </div>
@@ -155,7 +140,6 @@
 
     function authAction() {
         const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
-        if(!e || !p) return alert("Enter details");
         auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
     }
 
@@ -169,7 +153,6 @@
         } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
-    // PHOTO FIX: Improved compression for faster Firestore sync
     function triggerUpload() {
         const input = document.createElement('input');
         input.type = 'file'; input.accept = 'image/*';
@@ -195,14 +178,13 @@
     function saveProfile() {
         const data = {
             name: document.getElementById('editName').value,
+            nickname: document.getElementById('editNick').value,
             gender: document.getElementById('editGender').value,
             dob: document.getElementById('editDOB').value,
-            country: document.getElementById('editCountry').value,
-            photoURL: base64Photo,
-            uid: me.uid
+            photoURL: base64Photo
         };
         db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => {
-            alert("Profile Synced! ✅");
+            alert("Profile Synced Professionally! ✅");
             document.getElementById('profilePage').classList.remove('active');
         });
     }
@@ -212,9 +194,9 @@
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('editName').value = d.name || "";
+                document.getElementById('editNick').value = d.nickname || "";
                 document.getElementById('editGender').value = d.gender || "Male";
                 document.getElementById('editDOB').value = d.dob || "";
-                document.getElementById('editCountry').value = d.country || "";
                 if(d.photoURL) {
                     base64Photo = d.photoURL;
                     document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}" style="width:100%;height:100%;border-radius:50%;">`;
@@ -222,7 +204,6 @@
             }
         });
         document.getElementById('profilePage').classList.add('active');
-        toggleMenu();
     }
 
     function loadUsers() {
