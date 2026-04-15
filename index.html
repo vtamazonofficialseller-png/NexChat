@@ -9,63 +9,79 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
     <style>
-        :root { --wa-green: #075E54; --wa-teal: #128C7E; --online: #25D366; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: #e5ddd5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --wa-green: #075E54; --wa-teal: #128C7E; --online: #25D366; --bg-gray: #e5ddd5; }
+        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg-gray); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Professional UI Improvements */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2500; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; }
+        header { background: var(--wa-green); color: white; padding: 15px 15px 0; z-index: 100; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .tab-bar { display: flex; text-transform: uppercase; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 10px; }
-        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; }
+        .tab { flex: 1; text-align: center; padding-bottom: 12px; cursor: pointer; transition: 0.3s; }
         .tab.active { color: white; border-bottom: 4px solid white; }
+        
         .content-area { flex: 1; overflow-y: auto; background: white; display: none; }
         .content-area.active { display: block; }
-        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.3s ease; overflow-y: auto; }
+        
+        .window { position: fixed; top: 100%; left: 0; width: 100%; height: 100%; background: white; z-index: 4000; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); overflow-y: auto; }
         .window.active { top: 0; }
-        .item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #075E54; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden; }
+        
+        .item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+        .avatar { width: 55px; height: 55px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden; position: relative; font-size: 20px; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .status-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #ccc; }
+        
+        .status-dot { position: absolute; bottom: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background: #bbb; }
         .status-dot.online { background: var(--online); }
-        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:180px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-radius:8px; z-index:5000; overflow:hidden; }
-        .menu-item { padding:12px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; }
-        #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #e5ddd5; z-index: 1500; display: none; flex-direction: column; }
-        .chat-header { background: var(--wa-teal); color: white; padding: 10px; display: flex; align-items: center; gap: 12px; }
-        .msg-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; }
-        .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; }
-        .input-bar input { flex: 1; padding: 12px; border-radius: 25px; border: none; outline: none; }
-        #fab { position:fixed; bottom:20px; right:20px; width:60px; height:60px; border-radius:50%; background:var(--wa-green); color:white; border:none; font-size:24px; box-shadow:0 4px 10px rgba(0,0,0,0.3); z-index:1000; }
-        .edit-group { margin-bottom: 20px; text-align: left; padding: 0 20px; }
-        .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
-        .edit-group input, .edit-group select { width: 100%; padding: 10px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; background: transparent; }
+        
+        #dropMenu { display:none; position:absolute; right:10px; top:45px; background:white; color:black; width:200px; box-shadow:0 8px 24px rgba(0,0,0,0.2); border-radius:8px; z-index:5000; overflow:hidden; }
+        .menu-item { padding:15px; font-size:15px; cursor:pointer; border-bottom:1px solid #f9f9f9; }
+        .menu-item:hover { background: #f5f5f5; }
+
+        #chatWindow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gray); z-index: 1500; display: none; flex-direction: column; }
+        .chat-header { background: var(--wa-teal); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 12px; }
+        .msg-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        
+        .msg { max-width: 75%; padding: 8px 12px; margin: 5px 0; border-radius: 10px; font-size: 15px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg.sent { align-self: flex-end; background: #dcf8c6; border-top-right-radius: 0; }
+        .msg.received { align-self: flex-start; background: white; border-top-left-radius: 0; }
+        .msg-time { font-size: 10px; color: #888; text-align: right; margin-top: 4px; }
+
+        .input-bar { background: #f0f0f0; padding: 10px; display: flex; gap: 10px; align-items: center; }
+        .input-bar input { flex: 1; padding: 12px 18px; border-radius: 25px; border: none; outline: none; font-size: 16px; }
+        
+        #fab { position:fixed; bottom:25px; right:25px; width:60px; height:60px; border-radius:50%; background:var(--wa-green); color:white; border:none; font-size:24px; box-shadow:0 4px 15px rgba(0,0,0,0.4); z-index:1000; }
+        
+        .edit-group { margin-bottom: 20px; padding: 0 25px; }
+        .edit-group label { color: var(--wa-teal); font-weight: bold; font-size: 12px; text-transform: uppercase; }
+        .edit-group input, .edit-group select { width: 100%; padding: 10px 0; border: none; border-bottom: 2px solid #eee; outline: none; font-size: 16px; }
     </style>
 </head>
 <body>
 
 <div id="loginPage" class="overlay">
-    <h2 style="color:var(--wa-green)">NexChat Business</h2>
-    <input type="email" id="logEmail" placeholder="Email Address" style="width:80%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
-    <div style="position: relative; width: 85%; margin: 10px auto;">
-        <input type="password" id="logPass" placeholder="Password" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:10px;">
-        <span id="togglePass" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="togglePW()">👁️</span>
+    <div style="background:var(--wa-green); width:70px; height:70px; border-radius:18px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+        <span style="color:white; font-size:40px; font-weight:bold;">N</span>
     </div>
-    <button onclick="authAction()" style="width:85%; padding:14px; background:var(--wa-teal); color:white; border:none; border-radius:10px; font-weight:bold;">Login / Register</button>
+    <h2 style="color:var(--wa-green); margin-bottom:5px;">NexChat Business</h2>
+    <p style="color:gray; margin-bottom:20px;">Fast, Secure & Professional</p>
+    <input type="email" id="logEmail" placeholder="Email Address" style="width:85%; padding:14px; margin:10px; border:1px solid #ddd; border-radius:10px;">
+    <input type="password" id="logPass" placeholder="Password" style="width:85%; padding:14px; border:1px solid #ddd; border-radius:10px;">
+    <button onclick="authAction()" style="width:88%; padding:15px; background:var(--wa-teal); color:white; border:none; border-radius:10px; font-weight:bold; margin-top:15px; font-size:16px;">Get Started</button>
 </div>
 
 <header>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="font-size:20px; font-weight:bold;" id="adminTrigger">NexChat Pro</div>
-        <div style="display: flex; gap: 18px; align-items: center;">
-            <span onclick="toggleSearch()" style="cursor:pointer; font-size: 18px;">🔍</span>
-            <span onclick="toggleMenu()" style="cursor:pointer; font-size: 22px;">⋮</span>
+        <div style="font-size:22px; font-weight:bold;">NexChat Pro</div>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <span onclick="toggleMenu()" style="cursor:pointer; font-size: 24px;">⋮</span>
             <div id="dropMenu">
-                <div class="menu-item" onclick="openProfile()">Profile Settings</div>
+                <div class="menu-item" onclick="openProfile()">My Profile</div>
+                <div class="menu-item" onclick="alert('Feature coming soon!')">New Group</div>
                 <div class="menu-item" style="color:red;" onclick="auth.signOut()">Logout</div>
             </div>
         </div>
     </div>
-    <div id="searchBox" style="display:none; padding:10px 0;"><input type="text" id="userSearch" placeholder="Search chats..." oninput="filterList('.item')" style="width:100%; padding:10px; border-radius:8px; border:none; outline:none;"></div>
     <div class="tab-bar">
         <div class="tab active" onclick="switchTab('chats', this)">Chats</div>
         <div class="tab" onclick="switchTab('status', this)">Status</div>
@@ -74,66 +90,45 @@
 </header>
 
 <div id="s-chats" class="content-area active"><div id="userList"></div></div>
-<div id="s-status" class="content-area" style="padding:20px;">No updates yet.</div>
-<div id="s-calls" class="content-area" style="padding:20px;">No recent calls.</div>
+<div id="s-status" class="content-area" style="text-align:center; padding-top:50px; color:gray;">Status updates will appear here.</div>
+<div id="s-calls" class="content-area" style="text-align:center; padding-top:50px; color:gray;">No recent voice or video calls.</div>
 
-<button id="fab" onclick="openContacts()">👤+</button>
-
-<div id="contactPage" class="window">
-    <div class="chat-header">
-        <span onclick="document.getElementById('contactPage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
-        <span>Select Contact</span>
-    </div>
-    <div style="background:#f0f0f0; padding:10px;"><input type="text" id="contactSearch" placeholder="Search contacts..." oninput="filterList('#registeredUsers .item', 'contactSearch')" style="width:100%; padding:12px; border-radius:25px; border:none; outline:none;"></div>
-    <div id="registeredUsers"></div>
-</div>
+<button id="fab" onclick="alert('Click a user from the list to start chatting!')">💬</button>
 
 <div id="profilePage" class="window">
     <div class="chat-header">
         <span onclick="document.getElementById('profilePage').classList.remove('active')" style="cursor:pointer; font-size:24px;">←</span>
         <span>Profile Settings</span>
     </div>
-    <div style="text-align: center; padding: 20px;">
-        <div id="profPic" onclick="triggerUpload()" style="width:110px; height:110px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:40px; margin: 0 auto; cursor:pointer; overflow:hidden; border: 3px solid #eee;">V</div>
-        <p style="color:var(--wa-teal); font-weight:bold; cursor:pointer;" onclick="triggerUpload()">Change Photo 📷</p>
+    <div style="text-align: center; padding: 30px 20px;">
+        <div id="profPic" onclick="triggerUpload()" style="width:120px; height:120px; border-radius:50%; background:var(--wa-green); color:white; display:flex; align-items:center; justify-content:center; font-size:45px; margin: 0 auto; cursor:pointer; overflow:hidden; border: 4px solid #f0f0f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">V</div>
+        <p style="color:var(--wa-teal); font-weight:bold; margin-top:15px; cursor:pointer;" onclick="triggerUpload()">CHANGE PROFILE PHOTO 📷</p>
     </div>
     
-    <div class="edit-group"><label>App Language</label>
-        <select id="appLang">
-            <option value="en">English (Official)</option>
-            <option value="hi">Hindi (Coming Soon)</option>
-            <option value="mr">Marathi (Coming Soon)</option>
-        </select>
-    </div>
-
-    <div class="edit-group"><label>Country</label>
+    <div class="edit-group"><label>Full Name</label><input type="text" id="editName" placeholder="Vinayak Tiwari"></div>
+    <div class="edit-group"><label>App Language</label><select id="appLang"><option value="en">English (Official)</option></select></div>
+    <div class="edit-group"><label>Select Country</label>
         <select id="editCountry">
             <option value="India">India</option>
-            <option value="USA">United States</option>
-            <option value="UK">United Kingdom</option>
-            <option value="UAE">United Arab Emirates</option>
-            <option value="Canada">Canada</option>
-            <option value="Australia">Australia</option>
+            <option value="USA">USA</option>
+            <option value="UK">UK</option>
+            <option value="UAE">UAE</option>
         </select>
     </div>
-
-    <div class="edit-group"><label>Full Name</label><input type="text" id="editName" placeholder="Enter your full name"></div>
-    <div class="edit-group"><label>Nick Name</label><input type="text" id="editNick" placeholder="Enter nickname"></div>
-    <div class="edit-group"><label>Gender</label><select id="editGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
-    <div class="edit-group"><label>Date of Birth</label><input type="date" id="editDOB"></div>
     
-    <button onclick="saveProfile()" style="width:90%; padding:15px; background:var(--wa-green); color:white; border:none; border-radius:10px; margin: 20px 5%; font-weight:bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Update Profile ✅</button>
+    <button onclick="saveProfile()" style="width:90%; padding:16px; background:var(--wa-green); color:white; border:none; border-radius:12px; margin: 20px 5%; font-weight:bold; font-size:16px; box-shadow: 0 4px 10px rgba(7,94,84,0.3);">UPDATE PROFILE ✅</button>
 </div>
 
 <div id="chatWindow">
     <div class="chat-header">
         <span onclick="closeChat()" style="font-size:24px; cursor:pointer;">←</span>
-        <div><div id="activeUserName" style="font-weight:bold;">User</div><div id="typingText" style="font-size:12px; color:#dcf8c6; display:none;">typing...</div></div>
+        <div id="targetAvatar" style="width:35px; height:35px; border-radius:50%; background:white; overflow:hidden;"></div>
+        <div id="activeUserName" style="font-weight:bold; flex:1;">User</div>
     </div>
     <div class="msg-container" id="msgBox"></div>
     <div class="input-bar">
-        <input type="text" id="msgInput" placeholder="Type a message..." oninput="handleTyping()">
-        <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; border-radius:50%; width:45px; height:45px;">➤</button>
+        <input type="text" id="msgInput" placeholder="Type a message...">
+        <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; border-radius:50%; width:48px; height:48px; font-size:20px; display:flex; align-items:center; justify-content:center;">➤</button>
     </div>
 </div>
 
@@ -148,44 +143,48 @@
         appId: "1:1008162413503:web:9da287c9aff061b9445f0a"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(), db = firebase.firestore(), rtdb = firebase.database(), storage = firebase.storage();
-    let me = null, targetId = null, typingTimeout;
-
-    function togglePW() {
-        const p = document.getElementById('logPass'), i = document.getElementById('togglePass');
-        p.type = p.type === "password" ? "text" : "password";
-        i.innerText = p.type === "password" ? "👁️" : "🙈";
-    }
+    const auth = firebase.auth(), db = firebase.firestore(), rtdb = firebase.database();
+    let me = null, targetId = null, base64Photo = "";
 
     function authAction() {
         const e = document.getElementById('logEmail').value, p = document.getElementById('logPass').value;
-        if(!e || !p) { alert("Please fill credentials"); return; }
+        if(!e || !p) return alert("Enter details");
         auth.signInWithEmailAndPassword(e, p).catch(() => auth.createUserWithEmailAndPassword(e, p));
     }
 
     auth.onAuthStateChanged(user => {
-        if(user) {
-            me = user; document.getElementById('loginPage').style.display = 'none';
+        if(user) { 
+            me = user; 
+            document.getElementById('loginPage').style.display = 'none';
             rtdb.ref('/status/'+user.uid).set('online');
             rtdb.ref('/status/'+user.uid).onDisconnect().set('offline');
-            db.collection("users").doc(user.uid).set({ email: user.email }, { merge: true });
             loadUsers();
         } else { document.getElementById('loginPage').style.display = 'flex'; }
     });
 
+    // Smart Gallery Upload (With Compression)
     function triggerUpload() {
         const input = document.createElement('input');
         input.type = 'file'; input.accept = 'image/*';
         input.onchange = e => {
             const file = e.target.files[0];
-            if(!file) return;
-            const ref = storage.ref('profiles/' + me.uid);
-            ref.put(file).then(() => {
-                ref.getDownloadURL().then(url => {
-                    db.collection("users").doc(me.uid).update({ photoURL: url });
-                    document.getElementById('profPic').innerHTML = `<img src="${url}">`;
-                });
-            }).catch(err => alert("Error uploading photo. Check storage rules!"));
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 300;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    base64Photo = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('profPic').innerHTML = `<img src="${base64Photo}">`;
+                }
+            };
+            reader.readAsDataURL(file);
         };
         input.click();
     }
@@ -193,16 +192,14 @@
     function saveProfile() {
         const data = {
             name: document.getElementById('editName').value,
-            nickname: document.getElementById('editNick').value,
-            gender: document.getElementById('editGender').value,
-            dob: document.getElementById('editDOB').value,
             country: document.getElementById('editCountry').value,
-            language: document.getElementById('appLang').value
+            photoURL: base64Photo,
+            email: me.email
         };
         db.collection("users").doc(me.uid).set(data, { merge: true }).then(() => {
-            alert("Profile Updated Successfully! ✅");
+            alert("Profile Synced Professionally! ✅");
             document.getElementById('profilePage').classList.remove('active');
-        }).catch(err => alert("Error: " + err.message));
+        });
     }
 
     function openProfile() {
@@ -210,13 +207,11 @@
             if(doc.exists) {
                 const d = doc.data();
                 document.getElementById('editName').value = d.name || "";
-                document.getElementById('editNick').value = d.nickname || "";
-                document.getElementById('editGender').value = d.gender || "Male";
-                document.getElementById('editDOB').value = d.dob || "";
                 document.getElementById('editCountry').value = d.country || "India";
-                document.getElementById('appLang').value = d.language || "en";
-                if(d.photoURL) document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}">`;
-                else document.getElementById('profPic').innerText = (d.name || me.email)[0].toUpperCase();
+                if(d.photoURL) {
+                    document.getElementById('profPic').innerHTML = `<img src="${d.photoURL}">`;
+                    base64Photo = d.photoURL;
+                }
             }
         });
         document.getElementById('profilePage').classList.add('active');
@@ -231,8 +226,16 @@
                     const d = doc.data();
                     const div = document.createElement('div'); div.className = "item";
                     const avatarContent = d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase();
-                    div.innerHTML = `<div class="avatar-box"><div class="avatar">${avatarContent}</div><div id="dot-${doc.id}" class="status-dot"></div></div><div style="margin-left:15px;"><b>${d.name || d.email}</b><br><small>${d.country || ''}</small></div>`;
-                    div.onclick = () => openChat(doc.id, d.name || d.email);
+                    div.innerHTML = `
+                        <div class="avatar">${avatarContent}<div id="dot-${doc.id}" class="status-dot"></div></div>
+                        <div style="margin-left:15px; flex:1;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <b>${d.name || d.email.split('@')[0]}</b>
+                                <small style="color:#aaa;">${d.country || ''}</small>
+                            </div>
+                            <small style="color:gray;">Tap to chat...</small>
+                        </div>`;
+                    div.onclick = () => openChat(doc.id, d.name || d.email.split('@')[0], d.photoURL);
                     list.appendChild(div);
                     rtdb.ref('/status/'+doc.id).on('value', s => {
                         const dot = document.getElementById('dot-'+doc.id);
@@ -243,46 +246,23 @@
         });
     }
 
-    function openContacts() {
-        document.getElementById('contactPage').classList.add('active');
-        const list = document.getElementById('registeredUsers'); list.innerHTML = "";
-        db.collection("users").get().then(snap => {
-            snap.forEach(doc => {
-                if(doc.id !== me.uid) {
-                    const d = doc.data();
-                    const div = document.createElement('div'); div.className = "item";
-                    div.innerHTML = `<div class="avatar">${d.photoURL ? `<img src="${d.photoURL}">` : (d.name || d.email)[0].toUpperCase()}</div><div style="margin-left:15px;"><b>${d.name || d.email}</b><br><small>${d.nickname || 'NexChat User'}</small></div>`;
-                    div.onclick = () => { openChat(doc.id, d.name || d.email); document.getElementById('contactPage').classList.remove('active'); };
-                    list.appendChild(div);
-                }
-            });
-        });
+    function openChat(id, name, photo) { 
+        targetId = id; 
+        document.getElementById('activeUserName').innerText = name; 
+        document.getElementById('targetAvatar').innerHTML = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : "";
+        document.getElementById('chatWindow').style.display = 'flex'; 
+        loadMessages(id); 
     }
 
-    function toggleSearch() { const s = document.getElementById('searchBox'); s.style.display = s.style.display === 'none' ? 'block' : 'none'; }
-    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
-    function filterList(selector, inputId = 'userSearch') {
-        const q = document.getElementById(inputId).value.toLowerCase();
-        document.querySelectorAll(selector).forEach(i => i.style.display = i.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
-    }
-    function openChat(id, name) {
-        targetId = id; document.getElementById('activeUserName').innerText = name;
-        document.getElementById('chatWindow').style.display = 'flex';
-        loadMessages(id);
-        rtdb.ref('/typing/'+id).on('value', s => {
-            document.getElementById('typingText').style.display = (s.exists() && s.val().chattingWith === me.uid) ? 'block' : 'none';
-        });
-    }
-    function handleTyping() {
-        rtdb.ref('/typing/'+me.uid).set({ chattingWith: targetId });
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => rtdb.ref('/typing/'+me.uid).remove(), 2000);
-    }
     function sendMsg() {
         const val = document.getElementById('msgInput').value; if(!val) return;
-        db.collection("chats").add({ from: me.uid, to: targetId, msg: val, time: firebase.firestore.FieldValue.serverTimestamp() });
-        document.getElementById('msgInput').value = ""; rtdb.ref('/typing/'+me.uid).remove();
+        db.collection("chats").add({ 
+            from: me.uid, to: targetId, msg: val, 
+            time: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+        document.getElementById('msgInput').value = "";
     }
+
     function loadMessages(id) {
         db.collection("chats").orderBy("time").onSnapshot(snap => {
             const box = document.getElementById('msgBox'); box.innerHTML = "";
@@ -290,18 +270,23 @@
                 const d = doc.data();
                 if((d.from === me.uid && d.to === id) || (d.from === id && d.to === me.uid)) {
                     const m = document.createElement('div');
-                    m.style = d.from === me.uid ? "align-self:flex-end; background:#dcf8c6; padding:8px; margin:5px; border-radius:10px; max-width:80%;" : "align-self:flex-start; background:white; padding:8px; margin:5px; border-radius:10px; max-width:80%;";
-                    m.innerText = d.msg; box.appendChild(m);
+                    m.className = d.from === me.uid ? "msg sent" : "msg received";
+                    const time = d.time ? new Date(d.time.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "...";
+                    m.innerHTML = `${d.msg} <div class="msg-time">${time}</div>`; 
+                    box.appendChild(m);
                 }
             });
             box.scrollTop = box.scrollHeight;
         });
     }
-    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; rtdb.ref('/typing/'+me.uid).remove(); }
+
+    function closeChat() { document.getElementById('chatWindow').style.display = 'none'; }
+    function toggleMenu() { const m = document.getElementById('dropMenu'); m.style.display = m.style.display === 'none' ? 'block' : 'none'; }
     function switchTab(name, el) {
         document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
+        document.getElementById('s-'+name).classList.add('active');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('s-'+name).classList.add('active'); el.classList.add('active');
+        el.classList.add('active');
     }
 </script>
 </body>
